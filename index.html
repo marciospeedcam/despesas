@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="pt-BR" style="color-scheme:dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Despesas</title>
+<meta name="theme-color" content="#0e0e0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Despesas">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon-32.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+  :root{
+    --bg:#0e0e0e; --card:#1a1a1a; --ink:#f2f2f2; --muted:#a0a0a0; --line:#2e2e2e; --gold:#d4af37; --gold2:#f0d77a; --panel:#161616;
+    --red:#ff6b5e; --red-soft:rgba(255,107,94,.16); --amber:#f0d77a; --amber-soft:rgba(212,175,55,.18);
+    --green:#22c55e; --green-soft:rgba(34,197,94,.18); --blue:#3b82f6; --blue-soft:rgba(59,130,246,.18);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:16px}
+  body{padding:env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom))}
+  .wrap{max-width:560px;margin:0 auto;padding:0 14px}
+  header.hero{background:var(--panel);color:#fff;border-bottom:1px solid var(--line);padding:18px 0 22px;border-radius:0 0 24px 24px;margin-bottom:14px}
+  .hero .wrap{display:flex;flex-direction:column;gap:12px}
+  .brand{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .brand h1{font-size:20px;margin:0;font-weight:800;letter-spacing:.03em;color:var(--gold);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+  .brand small{color:#94a3b8;font-size:12px;display:block}
+  .status-dot{font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:6px}
+  .status-dot i{width:8px;height:8px;border-radius:50%;background:#64748b;display:inline-block}
+  .status-dot.ok i{background:#22c55e}
+  .monthbar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px}
+  .monthbar button{width:44px;height:40px;border:0;border-radius:10px;background:#262626;color:var(--gold2);font-size:24px;font-weight:700;cursor:pointer;line-height:1}
+  .monthbar button:disabled{opacity:.25;cursor:default}
+  .monthbar .mt{text-align:center;flex:1}
+  .monthbar #mNome{font-weight:800;font-size:17px;color:#fff;text-transform:capitalize}
+  .mest{font-size:12px;margin-top:2px;font-weight:600}
+  .mest.ab{color:#86efac} .mest.fu{color:#93c5fd} .mest.fc{color:var(--gold2)}
+  .saldo{background:var(--card);border:1px solid rgba(212,175,55,.35);border-radius:var(--radius);padding:16px}
+  .saldo .lbl{font-size:12px;color:#cbd5e1;text-transform:uppercase;letter-spacing:.06em}
+  .saldo .big{color:var(--gold2);font-size:28px;font-weight:800;margin:4px 0 2px;letter-spacing:-.02em}
+  .saldo .txt{font-size:14px;color:#e2e8f0}
+  .saldo button{margin-top:12px}
+  .carry{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed #333;padding-top:8px}
+  .carry b{color:var(--gold2)}
+  .acerto{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+  .acerto .ac{background:#1f1f1f;border-radius:10px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
+  .acerto .ac b{color:var(--gold2)}
+  .mcards{display:flex;flex-direction:column;gap:8px}
+  .mcard{border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.06);display:flex;align-items:center;gap:10px}
+  .mcard .inf{flex:1;min-width:0}
+  .mcard .n{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
+  .mcard .s{font-size:12px;color:#94a3b8;margin-top:2px}
+  .mcard .bal{text-align:right;font-size:14px;font-weight:700;white-space:nowrap}
+  .mcard .bal.pos{color:#86efac} .mcard .bal.neg{color:var(--red)} .mcard .bal.zero{color:var(--muted)}
+  .mcard .bal small{display:block;font-size:10px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em}
+  .av{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font-size:12px;font-weight:800;color:#fff;flex:none}
+  .av.sm{width:22px;height:22px;font-size:11px}
+  .tabs{display:flex;gap:6px;background:var(--card);padding:4px;border-radius:12px;margin:4px 0 12px}
+  .tabs button{flex:1;border:0;background:transparent;padding:9px 6px;border-radius:9px;font:600 14px -apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;color:var(--muted)}
+  .tabs button.on{background:var(--gold);color:#111}
+  .sum{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:0 2px 8px}
+  .list{display:flex;flex-direction:column;gap:8px}
+  .item{background:var(--card);border-radius:var(--radius);padding:12px 12px 12px 10px;display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line)}
+  .item.paid{opacity:.72}
+  .item.wait{border-color:rgba(212,175,55,.55);opacity:1}
+  .check{flex:none;width:30px;height:30px;border-radius:9px;border:2px solid #555;background:transparent;display:grid;place-items:center;margin-top:2px;cursor:pointer;padding:0}
+  .check.on{background:var(--green);border-color:var(--green)}
+  .check.wait{background:var(--amber-soft);border-color:var(--gold)}
+  .check svg{width:16px;height:16px;stroke:#fff;stroke-width:3;fill:none;opacity:0}
+  .check.on svg{opacity:1}
+  .body{flex:1;min-width:0}
+  .row1{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+  .name{font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .nw{display:flex;align-items:center;gap:6px;min-width:0;flex:1}
+  .who{flex:none;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;background:rgba(255,255,255,.1);color:#ddd}
+  .item.paid .name{text-decoration:line-through;text-decoration-color:#777}
+  .val{font-weight:700;white-space:nowrap}
+  .row2{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center}
+  .chip{font-size:12px;padding:3px 8px;border-radius:999px;background:#262626;color:#d4d4d4;font-weight:500;white-space:nowrap}
+  .chip.late{background:var(--red-soft);color:var(--red)} .chip.soon{background:var(--amber-soft);color:var(--amber)}
+  .chip.cart{background:rgba(96,165,250,.15);color:#93c5fd;font-weight:700}
+  .chip.parc{background:rgba(212,175,55,.15);color:var(--gold2);font-weight:700}
+  .chip.wait{background:var(--amber-soft);color:var(--gold2);font-weight:700}
+  .chip.falta{background:#262626;color:#8a8a8a}
+  .chip.anx-chip{background:var(--amber-soft);color:var(--gold2);cursor:pointer;border:0;font:500 12px -apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif}
+  .aprov{display:flex;gap:6px;margin-top:8px}
+  .aprov .btn{flex:1;padding:9px 10px;font-size:13px}
+  .empty{text-align:center;color:var(--muted);padding:34px 10px;font-size:14px;background:var(--card);border-radius:var(--radius);border:1px dashed #3a3a3a}
+  h2{font-size:15px;margin:22px 2px 8px;color:var(--gold);display:flex;align-items:center;gap:8px}
+  h2 .cnt{background:var(--gold);color:#111;border-radius:999px;font-size:12px;padding:1px 8px;font-weight:800}
+  .reemb{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;font-size:14px}
+  .reemb .d{color:var(--muted);font-size:12px}
+  .btn{border:0;border-radius:12px;padding:12px 16px;font:700 15px -apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;cursor:pointer}
+  .btn.pri{background:var(--gold);color:#111}
+  .btn.light{background:var(--gold);color:#111}
+  .btn.ghost{background:#262626;color:var(--ink)}
+  .btn.ok{background:var(--green);color:#fff}
+  .btn.danger{background:var(--red);color:#fff}
+  .btn:disabled{opacity:.5}
+  .btn.copy{background:#262626;color:var(--gold2);border:1px solid rgba(212,175,55,.5);padding:10px 14px;font-size:14px;flex:none}
+  .btn.block{width:100%;margin-top:10px}
+  .btn.share{width:100%;margin-top:18px;background:#1a1a1a;color:var(--gold2);border:1px solid rgba(212,175,55,.5)}
+  .fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));background:var(--gold);color:#111;border:0;border-radius:999px;padding:15px 26px;font:700 16px -apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;box-shadow:0 10px 24px rgba(0,0,0,.6);display:flex;gap:8px;align-items:center;cursor:pointer;z-index:5}
+  .fab span{font-size:22px;line-height:0}
+  .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:10}
+  .sheet{position:fixed;left:0;right:0;bottom:0;background:#141414;border-top:1px solid var(--line);border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-width:560px;margin:0 auto;transform:translateY(105%);transition:transform .22s ease;z-index:11;max-height:92vh;overflow:auto}
+  .sheet.open{transform:none}
+  .sheet h3{margin:0 0 14px;font-size:18px}
+  label.f{display:block;font-size:13px;color:var(--muted);font-weight:600;margin:12px 0 6px}
+  input[type=text],input[type=date],input[type=password],input[inputmode]{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:13px 12px;font:500 16px -apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;background:#0e0e0e;color:var(--ink)}
+  textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;font:500 16px -apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;background:#0e0e0e;color:var(--ink);resize:vertical}
+  input:focus,textarea:focus{outline:none;border-color:var(--gold)}
+  .desc{font-size:13px;color:var(--muted);margin-top:3px;white-space:pre-wrap;word-break:break-word}
+  .seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .seg.c2{grid-template-columns:1fr 1fr}
+  .seg button{border:1.5px solid var(--line);background:#0e0e0e;border-radius:12px;padding:12px 8px;font:600 14px -apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .seg button.on{border-color:var(--gold);background:rgba(212,175,55,.15);color:var(--gold2)}
+  .toggle{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding:12px;border-radius:12px;background:#1f1f1f;font-weight:600;font-size:15px;cursor:pointer;gap:10px}
+  input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:50px;text-align:left}
+  input[type=date]::-webkit-date-and-time-value{text-align:left}
+  .split-prev{margin-top:12px;font-size:14px;color:var(--muted);background:#1f1f1f;border-radius:12px;padding:10px 12px}
+  .split-prev b{color:var(--ink)}
+  .actions{display:flex;gap:8px;margin-top:18px}
+  .actions .btn{flex:1}
+  .err{color:var(--red);font-size:13px;margin-top:8px;min-height:1em}
+  .banner{background:var(--amber-soft);color:var(--amber);font-size:13px;padding:10px 12px;border-radius:12px;margin-bottom:10px;display:none}
+  .anx{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0e0e0e;border:1.5px dashed #3a3a3a;border-radius:12px;padding:10px 12px}
+  .anx.tem{border-style:solid;border-color:rgba(212,175,55,.5)}
+  .anx .ai{font-size:14px;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .anx.tem .ai{color:var(--ink)}
+  .anx .ab{display:flex;gap:6px;flex:none}
+  .anx .ab .btn{padding:8px 12px;font-size:13px}
+  .upl{display:block;border:1.5px dashed #444;border-radius:12px;padding:14px 12px;text-align:center;color:var(--gold2);font-weight:600;font-size:15px;cursor:pointer;background:#0e0e0e}
+  .cprev{margin-top:8px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+  .cprev img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+  .cprev button{margin-left:auto;background:none;border:0;color:var(--red);font-size:14px;font-weight:600;cursor:pointer}
+  .cview{text-align:center;color:var(--muted);font-size:14px}
+  .cview img{max-width:100%;border-radius:10px;border:1px solid var(--line)}
+  .cbtn{background:none;border:1px solid rgba(212,175,55,.5);color:var(--gold2);border-radius:8px;padding:4px 8px;font-size:12px;font-weight:600;cursor:pointer;margin-top:4px}
+  .pixrow{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .pixrow .pn{display:flex;align-items:center;gap:6px;font-weight:600;font-size:14px}
+  .pixrow .pk{font-size:16px;font-weight:700;color:var(--gold2);margin-top:4px;letter-spacing:.02em;font-variant-numeric:tabular-nums;word-break:break-all}
+  .pixrow .pk.vazio{color:var(--muted);font-weight:500;font-size:13px}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom));background:#2a2a2a;color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:40;max-width:90%;text-align:center}
+  .toast.show{opacity:1}
+  .viewer{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:30;display:none;flex-direction:column}
+  .viewer.open{display:flex}
+  .viewer .vt{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;color:#fff;font-weight:600}
+  .viewer .vb{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:8px}
+  .viewer img{max-width:100%;height:auto;border-radius:8px}
+  /* entrada */
+  .gate{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px 16px calc(24px + env(safe-area-inset-bottom));max-width:430px;margin:0 auto}
+  .gate .logo{text-align:center;margin-bottom:22px}
+  .gate .logo img{width:72px;height:72px;border-radius:17px}
+  .gate .logo h1{color:var(--gold);font-size:26px;margin:12px 0 4px;letter-spacing:.04em}
+  .gate .logo p{color:var(--muted);font-size:14px;margin:0}
+  .gate .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+  .gate .box h3{margin:0 0 4px;font-size:17px}
+  .gate .box p.h{margin:0 0 10px;font-size:13px;color:var(--muted)}
+  .gate .sep{text-align:center;color:#555;font-size:12px;margin:16px 0;letter-spacing:.1em}
+  .memberpick{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .memberpick button{display:flex;align-items:center;gap:10px;background:#1f1f1f;border:1.5px solid var(--line);border-radius:12px;padding:12px;color:var(--ink);font:600 15px -apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;cursor:pointer;text-align:left}
+  .memberpick button.on{border-color:var(--gold);background:rgba(212,175,55,.12)}
+  .mrow{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .mrow .inf{flex:1;min-width:0}
+  .mrow .nm{font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mrow .sb{font-size:12px;color:var(--muted);margin-top:2px;word-break:break-all}
+  .mrow .x{background:none;border:0;color:var(--red);font-size:20px;cursor:pointer;flex:none;padding:0 4px}
+  .hide{display:none!important}
+  .linkbox{background:#0e0e0e;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--gold2);word-break:break-all;margin-top:8px}
+  .small{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.45}
+</style>
+</head>
+<body>
+
+<!-- ======= ENTRADA (criar / entrar no grupo) ======= -->
+<div id="gate" class="gate">
+  <div class="logo">
+    <img src="icon-180.png" alt="Despesas" width="72" height="72">
+    <h1>DESPESAS</h1>
+    <p>Divida as contas do grupo, com comprovante e aprovação.</p>
+  </div>
+
+  <!-- entrar por link -->
+  <div class="box hide" id="gJoin">
+    <h3 id="gJoinTitle">Entrar no grupo</h3>
+    <p class="h" id="gJoinSub">Escolha o seu nome na lista ou coloque o seu nome.</p>
+    <div class="memberpick" id="gJoinList"></div>
+    <label class="f" for="gJoinNome">Sou novo no grupo — meu nome</label>
+    <input type="text" id="gJoinNome" placeholder="Ex.: Márcio" maxlength="30" autocomplete="off">
+    <label class="f" for="gJoinPix">Minha chave Pix (opcional)</label>
+    <input type="text" id="gJoinPix" placeholder="CPF, celular, e-mail ou aleatória" maxlength="80" autocomplete="off">
+    <div class="err" id="gJoinErr"></div>
+    <button class="btn pri block" id="gJoinOk">Entrar no grupo</button>
+    <button class="btn ghost block" id="gJoinBack">Voltar</button>
+  </div>
+
+  <!-- escolha inicial -->
+  <div id="gStart">
+    <div class="box hide" id="gMeus">
+      <h3>Meus grupos</h3>
+      <p class="h">Toque para abrir. Você pode ter quantos grupos quiser: casa, festa, loja, viagem…</p>
+      <div class="memberpick" id="gMeusList"></div>
+    </div>
+    <div class="sep hide" id="gMeusSep">OU</div>
+    <div class="box">
+      <h3 id="cTit">Criar um grupo</h3>
+      <p class="h">Você fica como administrador e aprova as despesas.</p>
+      <label class="f" for="cNome">Nome do grupo</label>
+      <input type="text" id="cNome" placeholder="Ex.: Apartamento 42, Viagem, JB" maxlength="40" autocomplete="off">
+      <label class="f" for="cMeu">Seu nome</label>
+      <input type="text" id="cMeu" placeholder="Ex.: Márcio" maxlength="30" autocomplete="off">
+      <label class="f" for="cSenha">Senha curta do administrador (4 a 8 números)</label>
+      <input id="cSenha" inputmode="numeric" placeholder="Ex.: 1234" maxlength="8" autocomplete="off">
+      <label class="f" for="cPix">Sua chave Pix (opcional)</label>
+      <input type="text" id="cPix" placeholder="CPF, celular, e-mail ou aleatória" maxlength="80" autocomplete="off">
+      <div class="err" id="cErr"></div>
+      <button class="btn pri block" id="cOk">Criar grupo</button>
+    </div>
+    <div class="sep">OU</div>
+    <div class="box">
+      <h3>Entrar em um grupo</h3>
+      <p class="h">Com o código que o administrador mandou.</p>
+      <label class="f" for="jCod">Código do grupo</label>
+      <input type="text" id="jCod" placeholder="Ex.: a7k3xp" maxlength="12" autocomplete="off">
+      <div class="err" id="jErr"></div>
+      <button class="btn ghost block" id="jOk">Procurar grupo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======= APP ======= -->
+<div id="app" class="hide">
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <div style="display:flex;align-items:center;gap:12px;min-width:0">
+        <img src="icon-180.png" alt="" width="46" height="46" style="border-radius:11px">
+        <div style="min-width:0"><h1 id="gNome">—</h1><small id="gSub">—</small></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div class="status-dot" id="status"><i></i><span>conectando…</span></div>
+        <button class="cbtn" id="btnCfg">⚙️ Grupo</button>
+      </div>
+    </div>
+    <div class="monthbar">
+      <button type="button" id="mPrev" aria-label="Mês anterior">‹</button>
+      <div class="mt"><div id="mNome">—</div><div id="mEst" class="mest"></div></div>
+      <button type="button" id="mNext" aria-label="Próximo mês">›</button>
+    </div>
+    <div class="saldo">
+      <div class="lbl" id="saldoLbl">Total do mês</div>
+      <div class="big" id="saldoBig">R$ 0,00</div>
+      <div class="txt" id="saldoTxt">Carregando…</div>
+      <div class="carry" id="carry"></div>
+      <div class="acerto" id="acerto"></div>
+      <button class="btn light" id="btnReemb" style="display:none">Registrar reembolso</button>
+    </div>
+    <div class="mcards" id="mcards"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="banner" id="banner"></div>
+
+  <h2 id="hWait" style="display:none">⏳ Aguardando aprovação <span class="cnt" id="cWait">0</span></h2>
+  <div class="list" id="waitList"></div>
+
+  <div class="tabs" id="tabs">
+    <button data-f="pend" class="on">A pagar</button>
+    <button data-f="paid">Pagas</button>
+    <button data-f="all">Todas</button>
+  </div>
+  <div class="sum" id="sum"></div>
+  <div class="list" id="list"></div>
+
+  <button class="btn share" id="btnShare">📤 Convidar para o grupo</button>
+
+  <h2>Chaves Pix</h2>
+  <div class="list" id="pixList"></div>
+
+  <h2 id="hReemb" style="display:none">Reembolsos</h2>
+  <div class="list" id="reembList"></div>
+</main>
+
+<button class="fab" id="fab"><span>+</span> Nova despesa</button>
+</div>
+
+<div class="sheet-bg" id="bg"></div>
+
+<!-- Despesa -->
+<div class="sheet" id="sheetExp">
+  <h3 id="expTitle">Nova despesa</h3>
+  <form id="formExp" autocomplete="off">
+    <label class="f" for="fName">Nome da despesa</label>
+    <input type="text" id="fName" placeholder="Ex.: Aluguel, mercado, material" maxlength="80">
+    <label class="f" for="fDesc">Descrição (opcional)</label>
+    <textarea id="fDesc" rows="2" maxlength="500" placeholder="Detalhes: o que foi comprado, fornecedor, nº da nota…"></textarea>
+    <label class="f" for="fVal">Valor total (R$)</label>
+    <input id="fVal" inputmode="decimal" placeholder="0,00">
+    <label class="f">Quem pagou / vai pagar</label>
+    <div class="seg" id="segPayer"></div>
+    <div id="formaBox">
+      <label class="f">Forma de pagamento</label>
+      <div class="seg" id="segForma">
+        <button type="button" data-p="vista" class="on">À vista</button>
+        <button type="button" data-p="parc">Parcelado</button>
+        <button type="button" data-p="cartao">💳 Cartão</button>
+      </div>
+      <div id="parcBox" style="display:none">
+        <label class="f" for="fParc">Número de parcelas</label>
+        <input id="fParc" inputmode="numeric" placeholder="Ex.: 3" maxlength="2">
+      </div>
+    </div>
+    <label class="f" for="fDue" id="lblDue">Data de vencimento (opcional)</label>
+    <input type="date" id="fDue">
+    <div class="toggle" id="togCartao" style="display:none"><span>💳 Pago no cartão de crédito (todas as parcelas)</span><span class="check" id="chkCartao"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span></div>
+    <div class="toggle" id="togPaid"><span id="txtPaid">Já foi paga</span><span class="check" id="chkPaid"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span></div>
+    <label class="f">Nota da despesa (foto ou PDF)</label>
+    <div class="anx" id="anxNota"></div>
+    <label class="f">Comprovante de pagamento (foto ou PDF)</label>
+    <div class="anx" id="anxComp"></div>
+    <input type="file" id="fileIn" accept="image/*,application/pdf" style="display:none">
+    <div class="split-prev" id="splitPrev">Cada um paga <b>R$ 0,00</b></div>
+    <div class="err" id="errExp"></div>
+    <div class="actions">
+      <button type="button" class="btn danger" id="btnDel" style="display:none;flex:0 0 auto">Excluir</button>
+      <button type="button" class="btn ghost" data-close>Cancelar</button>
+      <button type="submit" class="btn pri" id="btnSave">Salvar</button>
+    </div>
+  </form>
+</div>
+
+<!-- Reembolso -->
+<div class="sheet" id="sheetReemb">
+  <h3>Registrar reembolso</h3>
+  <form id="formReemb" autocomplete="off">
+    <label class="f">Quem pagou o reembolso</label>
+    <div class="seg" id="segFrom"></div>
+    <label class="f">Quem recebeu</label>
+    <div class="seg" id="segTo"></div>
+    <label class="f" for="rVal">Valor (R$)</label>
+    <input id="rVal" inputmode="decimal" placeholder="0,00">
+    <label class="f" for="rDate">Data</label>
+    <input type="date" id="rDate">
+    <label class="f">Comprovante (opcional)</label>
+    <label class="upl" id="rCompBox">
+      <input type="file" id="rComp" accept="image/*,application/pdf" hidden>
+      <span id="rCompTxt">📎 Anexar foto ou PDF do comprovante</span>
+    </label>
+    <div id="rCompPrev" class="cprev" style="display:none"></div>
+    <div class="split-prev" id="reembPrev"></div>
+    <div class="err" id="errReemb"></div>
+    <div class="actions">
+      <button type="button" class="btn ghost" data-close>Cancelar</button>
+      <button type="submit" class="btn pri">Salvar</button>
+    </div>
+  </form>
+</div>
+
+<!-- Comprovante (reembolso) -->
+<div class="sheet" id="sheetComp">
+  <h3>Comprovante</h3>
+  <div id="compBody" class="cview">Carregando…</div>
+  <div class="actions"><button type="button" class="btn ghost" data-close>Fechar</button></div>
+</div>
+<input type="file" id="attachLater" accept="image/*,application/pdf" hidden>
+
+<!-- Configurações do grupo -->
+<div class="sheet" id="sheetCfg">
+  <h3>Grupo</h3>
+  <div class="small" id="cfgInfo"></div>
+  <label class="f">Link do convite</label>
+  <div class="linkbox" id="cfgLink">—</div>
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <button class="btn copy" id="cfgCopy" style="flex:1">Copiar link</button>
+    <button class="btn copy" id="cfgShare" style="flex:1">Compartilhar</button>
+  </div>
+  <label class="f">Pessoas do grupo</label>
+  <div class="list" id="cfgMembros"></div>
+  <div id="cfgAddBox">
+    <label class="f" for="cfgAddNome">Adicionar pessoa</label>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="cfgAddNome" placeholder="Nome" maxlength="30" style="flex:1">
+      <button class="btn copy" id="cfgAdd">Add</button>
+    </div>
+  </div>
+  <label class="f" for="cfgPix">Minha chave Pix</label>
+  <input type="text" id="cfgPix" placeholder="CPF, celular, e-mail ou aleatória" maxlength="80">
+  <button class="btn copy block" id="cfgPixSave">Salvar minha chave Pix</button>
+  <div id="cfgAdminBox">
+    <label class="f" for="cfgSenha">Senha de administrador</label>
+    <input id="cfgSenha" inputmode="numeric" placeholder="Senha curta" maxlength="8">
+    <button class="btn copy block" id="cfgAdminOk">Entrar como administrador</button>
+  </div>
+  <div class="err" id="cfgErr"></div>
+  <button class="btn copy block" id="cfgTrocar">↔️ Trocar de grupo / criar outro</button>
+  <div class="actions">
+    <button type="button" class="btn ghost" id="cfgSair">Sair deste grupo</button>
+    <button type="button" class="btn pri" data-close>Fechar</button>
+  </div>
+</div>
+
+<!-- Confirmar -->
+<div class="sheet" id="sheetConfirm">
+  <h3 id="confTitle">Excluir?</h3>
+  <div style="color:var(--muted);font-size:14px" id="confTxt"></div>
+  <div class="actions">
+    <button type="button" class="btn ghost" data-close>Cancelar</button>
+    <button type="button" class="btn danger" id="confOk">Excluir</button>
+  </div>
+</div>
+
+<div class="viewer" id="viewer">
+  <div class="vt"><span id="vTitle">Anexo</span><div style="display:flex;gap:6px"><button class="btn copy" id="vOpen">Abrir</button><button class="btn copy" id="vClose">Fechar</button></div></div>
+  <div class="vb" id="vBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+  'use strict';
+  const firebaseConfig = {
+    apiKey: "AIzaSyDHrEYnwtGICtFeMivKx6s7xtH0fNBfbEc",
+    authDomain: "despesas-grupos.firebaseapp.com",
+    projectId: "despesas-grupos",
+    storageBucket: "despesas-grupos.firebasestorage.app",
+    messagingSenderId: "97084221078",
+    appId: "1:97084221078:web:44cf07090ec41503d1c4b7"
+  };
+  const $ = s => document.querySelector(s);
+  const fmt = c => (c<0?"-":"") + "R$ " + (Math.abs(c)/100).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const esc = s => String(s==null?"":s).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+  const parseMoney = s => { s=String(s||"").trim().replace(/[R$\s]/g,""); if(!s) return NaN; if(s.includes(",")) s=s.replace(/\./g,"").replace(",","."); const n=Number(s); return isFinite(n)?Math.round(n*100):NaN; };
+  const centsToInput = c => (c/100).toFixed(2).replace(".",",");
+  const today = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+  const fmtDate = iso => { if(!iso) return ""; const [y,m,d]=iso.split("-"); return d+"/"+m+"/"+y.slice(2); };
+  const daysUntil = iso => { const a=new Date(iso+"T00:00:00"), b=new Date(today()+"T00:00:00"); return Math.round((a-b)/86400000); };
+  const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+  const curMonth = () => today().slice(0,7);
+  const nomeMes = m => { const [y,mm]=m.split("-"); return MESES[(+mm)-1]+" "+y; };
+  const addMes = (m,d) => { let [y,mm]=m.split("-").map(Number); mm+=d; while(mm<1){mm+=12;y--;} while(mm>12){mm-=12;y++;} return y+"-"+String(mm).padStart(2,"0"); };
+  const isoDe = ts => { if(!ts) return today(); const d=new Date(ts); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+  const clampMes = m => { const c=curMonth(); return (!/^\d{4}-\d{2}$/.test(m)||m>c)?c:m; };
+  const CORES=["#3b82f6","#22c55e","#e879a6","#f59e0b","#8b5cf6","#06b6d4","#ef4444","#84cc16","#f97316","#14b8a6"];
+  const LS=(k,v)=>{ try{ if(v===undefined) return localStorage.getItem(k); if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){} return v; };
+
+  let db=null, auth=null;
+  let gid=LS("dsp_g")||"", meuId=LS("dsp_m")||"";
+  let grupo=null, membros=[], expenses=[], reembs=[];
+  let filter="pend", selMonth=curMonth(), loadedExp=false, loadedReemb=false, unsub=[];
+
+  const souAdmin = () => !!(gid && LS("dsp_adm_"+gid)==="1");
+  const memDe = id => membros.find(m=>m.id===id)||null;
+  const nomeDe = id => { const m=memDe(id); return m?m.nome:"(saiu)"; };
+  const corDe = id => { const i=membros.findIndex(m=>m.id===id); return i<0?"#64748b":CORES[i%CORES.length]; };
+  const inic = n => String(n||"?").trim().charAt(0).toUpperCase()||"?";
+  const avatar = (id,sm) => `<span class="av${sm?" sm":""}" style="background:${corDe(id)}">${esc(inic(nomeDe(id)))}</span>`;
+  const nPessoas = () => Math.max(1,membros.length);
+  const conta = e => !!(e.paid && e.aprovado);
+  const col = n => db.collection("grupos").doc(gid).collection(n);
+  const docG = () => db.collection("grupos").doc(gid);
+
+  function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2600); }
+  function banner(msg){ const b=$("#banner"); if(msg){b.textContent=msg;b.style.display="block";} else b.style.display="none"; }
+  function setStatus(ok,txt){ const s=$("#status"); s.classList.toggle("ok",ok); s.querySelector("span").textContent=txt; }
+  async function copyText(t){
+    try{ await navigator.clipboard.writeText(t); return true; }catch(e){}
+    try{ const ta=document.createElement("textarea"); ta.value=t; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,99999); const ok=document.execCommand("copy"); ta.remove(); return ok; }catch(e){ return false; }
+  }
+  const linkConvite = () => location.origin+location.pathname+"?g="+gid;
+
+  // vários grupos no mesmo aparelho
+  function lista(){ try{ return (JSON.parse(LS("dsp_lista")||"[]")||[]).filter(x=>x&&x.g&&x.m); }catch(e){ return []; } }
+  function salvarLista(l){ LS("dsp_lista",JSON.stringify(l.slice(0,30))); }
+  function lembrar(g,m,n){ const l=lista().filter(x=>x.g!==g); l.unshift({g,m,n:n||""}); salvarLista(l); }
+  function esquecer(g){ salvarLista(lista().filter(x=>x.g!==g)); }
+  function daLista(g){ return lista().find(x=>x.g===g)||null; }
+
+  // ---------- recarregar / service worker ----------
+  function recarregar(){ try{ const t=+(sessionStorage.getItem("dsp_rl")||0); if(Date.now()-t<30000) return; sessionStorage.setItem("dsp_rl",String(Date.now())); }catch(e){ return; } location.reload(); }
+  let swReg=null;
+  if("serviceWorker" in navigator){
+    const tinha=!!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{ swReg=r; r.update().catch(()=>{}); }).catch(()=>{});
+    let rec=false;
+    navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(tinha&&!rec&&!openSheet){ rec=true; recarregar(); } });
+  }
+  let escondidoEm=0;
+  function voltou(){
+    if(document.hidden) return;
+    if(swReg) swReg.update().catch(()=>{});
+    const longe=escondidoEm&&Date.now()-escondidoEm>15000; escondidoEm=0;
+    if(longe&&!openSheet&&!$("#viewer").classList.contains("open")){ recarregar(); return; }
+    try{ if(db) db.disableNetwork().then(()=>db.enableNetwork()).catch(()=>{}); }catch(e){}
+  }
+  document.addEventListener("visibilitychange",()=>{ if(document.hidden) escondidoEm=Date.now(); else voltou(); });
+  window.addEventListener("pageshow",ev=>{ if(ev.persisted) recarregar(); });
+  window.addEventListener("focus",voltou);
+  window.addEventListener("online",()=>{ try{ if(db) db.enableNetwork().catch(()=>{}); }catch(e){} });
+
+  // ---------- meses ----------
+  function mesDesp(e){
+    const c=curMonth();
+    if(e.cartao){ const m=(e.due||e.mes||"").slice(0,7); if(/^\d{4}-\d{2}$/.test(m)) return m; }
+    if(!e.paid){ const m=(e.due||"").slice(0,7); return (/^\d{4}-\d{2}$/.test(m)&&m>c)?m:c; }
+    return clampMes(e.mes||(e.paidAt||isoDe(e.createdAt)).slice(0,7));
+  }
+  function mesReemb(r){ return clampMes(r.mes||(r.date||isoDe(r.createdAt)).slice(0,7)); }
+  const futuro = m => m>curMonth();
+  const fechado = m => m<curMonth();
+  const editavel = () => !fechado(selMonth);
+  function ultimoMes(){ let m=addMes(curMonth(),1); for(const e of expenses){ const x=mesDesp(e); if(x>m) m=x; } return m; }
+  function primeiroMes(){ let m=addMes(curMonth(),-1); for(const e of expenses){ const x=mesDesp(e); if(x<m) m=x; } for(const r of reembs){ const x=mesReemb(r); if(x<m) m=x; } return m; }
+
+  // ---------- cálculo ----------
+  function zeros(){ const o={}; membros.forEach(m=>o[m.id]=0); return o; }
+  function netAte(m){
+    const n=zeros(); let tot=0;
+    for(const e of expenses){ if(!conta(e)||mesDesp(e)>=m) continue; n[e.payer]=(n[e.payer]||0)+(e.value|0); tot+=e.value|0; }
+    const parte=tot/nPessoas(); membros.forEach(x=>n[x.id]=(n[x.id]||0)-parte);
+    for(const r of reembs){ if(mesReemb(r)>=m) continue; n[r.from]=(n[r.from]||0)+(r.value|0); n[r.to]=(n[r.to]||0)-(r.value|0); }
+    Object.keys(n).forEach(k=>n[k]=Math.round(n[k]));
+    return n;
+  }
+  function compute(){
+    const M=selMonth, carry=netAte(M);
+    const pago=zeros(), deu=zeros(), rec=zeros(); let total=0;
+    for(const e of expenses){ if(!conta(e)||mesDesp(e)!==M) continue; const v=e.value|0; total+=v; pago[e.payer]=(pago[e.payer]||0)+v; }
+    for(const r of reembs){ if(mesReemb(r)!==M) continue; const v=r.value|0; deu[r.from]=(deu[r.from]||0)+v; rec[r.to]=(rec[r.to]||0)+v; }
+    const parte=Math.round(total/nPessoas());
+    const ehMembro=new Set(membros.map(m=>m.id));
+    const ids=new Set([...ehMembro,...Object.keys(pago),...Object.keys(deu),...Object.keys(rec),...Object.keys(carry)]);
+    const net={};
+    ids.forEach(id=>{ net[id]=Math.round((pago[id]||0)+(deu[id]||0)-(rec[id]||0)-(ehMembro.has(id)?total/nPessoas():0)+(carry[id]||0)); });
+    return {pago,deu,rec,total,parte,net,carry};
+  }
+  // sugestão de acerto: quem deve paga quem tem a receber
+  function acertos(net){
+    const dev=[], cre=[];
+    Object.keys(net).forEach(id=>{ const v=net[id]; if(v<-50) dev.push({id,v:-v}); else if(v>50) cre.push({id,v}); });
+    dev.sort((a,b)=>b.v-a.v); cre.sort((a,b)=>b.v-a.v);
+    const out=[]; let i=0,j=0;
+    while(i<dev.length&&j<cre.length){
+      const q=Math.min(dev[i].v,cre[j].v);
+      out.push({de:dev[i].id,para:cre[j].id,valor:q});
+      dev[i].v-=q; cre[j].v-=q;
+      if(dev[i].v<=50) i++;
+      if(cre[j].v<=50) j++;
+    }
+    return out;
+  }
+
+  // ---------- render ----------
+  function render(){
+    if(!grupo) return;
+    const {pago,deu,rec,total,parte,net,carry} = compute();
+    const fc=fechado(selMonth), fut=futuro(selMonth), ed=editavel(), first=primeiroMes(), last=ultimoMes(), ready=loadedExp&&loadedReemb;
+    $("#gNome").textContent=grupo.nome;
+    $("#gSub").textContent=nPessoas()+(nPessoas()>1?" pessoas":" pessoa")+" · você é "+(memDe(meuId)?memDe(meuId).nome:"—")+(souAdmin()?" (admin)":"");
+    $("#mNome").textContent=nomeMes(selMonth);
+    $("#mEst").textContent=fc?"🔒 Mês fechado":fut?"📅 Mês futuro (previsão)":"Mês aberto";
+    $("#mEst").className="mest "+(fc?"fc":fut?"fu":"ab");
+    $("#mPrev").disabled=selMonth<=first;
+    $("#mNext").disabled=selMonth>=last;
+
+    if(fut){
+      const pend=expenses.filter(e=>e.aprovado&&!e.paid&&mesDesp(e)===selMonth), cart=expenses.filter(e=>e.aprovado&&e.cartao&&mesDesp(e)===selMonth);
+      const tot=pend.reduce((a,e)=>a+(e.value|0),0)+cart.reduce((a,e)=>a+(e.value|0),0);
+      $("#saldoLbl").textContent="Previsto para "+nomeMes(selMonth).split(" ")[0];
+      $("#saldoBig").textContent=fmt(tot);
+      $("#saldoTxt").textContent=(pend.length+cart.length)?((pend.length+cart.length)+" despesa(s) · "+fmt(Math.round(tot/nPessoas()))+" para cada um"):"Nenhuma despesa prevista neste mês";
+      const at=netAte(addMes(curMonth(),1)), ac=acertos(at);
+      $("#carry").innerHTML = ac.length ? "Saldo de hoje entre vocês:" : "Saldo de hoje entre vocês: <b>zerado ✓</b>";
+      $("#acerto").innerHTML = ac.map(a=>`<div class="ac"><span>${avatar(a.de,1)} ${esc(nomeDe(a.de))} → ${esc(nomeDe(a.para))}</span><b>${fmt(a.valor)}</b></div>`).join("");
+      $("#btnReemb").style.display="none";
+    } else {
+      $("#saldoLbl").textContent=fc?"Total de "+nomeMes(selMonth).split(" ")[0]:"Total do mês";
+      $("#saldoBig").textContent=fmt(total);
+      const nd=expenses.filter(e=>conta(e)&&mesDesp(e)===selMonth).length;
+      $("#saldoTxt").textContent=!ready?"Carregando…":nd?(nd+" despesa"+(nd>1?"s":"")+" · "+fmt(parte)+" para cada um"):"Nenhuma despesa lançada neste mês";
+      const cac=acertos(carry);
+      $("#carry").innerHTML = cac.length
+        ? "Vinha do mês anterior: "+cac.map(a=>`<b>${esc(nomeDe(a.de))} devia ${fmt(a.valor)} a ${esc(nomeDe(a.para))}</b>`).join(" · ")
+        : "Mês anterior: <b>zerado ✓</b>";
+      const ac=acertos(net);
+      $("#acerto").innerHTML = ac.length
+        ? ac.map(a=>{ const p=memDe(a.para); const pix=p&&p.pix?p.pix:"";
+            return `<div class="ac"><span>${avatar(a.de,1)} <b>${esc(nomeDe(a.de))}</b> paga ${esc(nomeDe(a.para))}</span><span style="display:flex;align-items:center;gap:8px"><b>${fmt(a.valor)}</b>${pix&&!fc?`<button class="cbtn" data-pix="${esc(pix)}">Pix</button>`:""}</span></div>`; }).join("")
+        : (ready&&total?`<div class="ac"><span>Tudo acertado entre vocês ✓</span></div>`:"");
+      $("#btnReemb").style.display=ed?"inline-block":"none";
+    }
+
+    // cartões por pessoa
+    $("#mcards").innerHTML = membros.map(m=>{
+      const v=net[m.id]||0, cls=Math.abs(v)<50?"zero":v>0?"pos":"neg";
+      const lbl=Math.abs(v)<50?"em dia":v>0?"a receber":"a pagar";
+      const rl=(deu[m.id]||0)-(rec[m.id]||0);
+      const sub = fut ? "" : `pagou ${fmt(pago[m.id]||0)} · parte ${fmt(parte)}`+(rl>0?` · devolveu ${fmt(rl)}`:rl<0?` · recebeu ${fmt(-rl)}`:"");
+      return `<div class="mcard">${avatar(m.id)}<div class="inf"><div class="n">${esc(m.nome)}${m.id===grupo.adminId?' <span class="chip" style="padding:1px 6px">admin</span>':""}</div><div class="s">${sub}</div></div><div class="bal ${cls}">${fmt(Math.abs(v))}<small>${lbl}</small></div></div>`;
+    }).join("");
+
+    // aguardando aprovação (agrupa parcelas)
+    const wraw=expenses.filter(e=>!e.aprovado);
+    const wmap=new Map();
+    wraw.forEach(e=>{ const k=(e.parcela&&e.parcela.grupo)||e.id; if(!wmap.has(k)) wmap.set(k,[]); wmap.get(k).push(e); });
+    const wgr=[...wmap.values()].map(a=>a.sort((x,y)=>(x.parcela?x.parcela.n:0)-(y.parcela?y.parcela.n:0)));
+    wgr.sort((a,b)=>(b[0].createdAt||0)-(a[0].createdAt||0));
+    $("#hWait").style.display=wgr.length?"flex":"none";
+    $("#cWait").textContent=wgr.length;
+    $("#waitList").innerHTML = wgr.map(g=>{
+      const e=g[0], tot=g.reduce((s,x)=>s+(x.value|0),0), n=g.length;
+      const tipo=e.espera==="pago"?"pagamento":"nova despesa";
+      const quem=e.criadoPor?nomeDe(e.criadoPor):nomeDe(e.payer);
+      return `<div class="item wait" data-id="${esc(e.id)}" data-grp="${esc((e.parcela&&e.parcela.grupo)||"")}">
+        <div class="body">
+          <div class="row1"><div class="nw">${avatar(e.payer,1)}<div class="name">${esc(e.name)}</div></div><div class="val">${fmt(tot)}</div></div>
+          ${e.desc?`<div class="desc">${esc(e.desc)}</div>`:""}
+          <div class="row2">
+            <span class="chip wait">⏳ ${tipo} de ${esc(quem)}</span>
+            ${n>1?`<span class="chip parc">${n} parcelas</span>`:""}
+            ${e.cartao?`<span class="chip cart">💳 cartão</span>`:""}
+            ${e.due?`<span class="chip">Venc. ${fmtDate(e.due)}</span>`:""}
+            <span class="chip">${fmt(Math.round(tot/nPessoas()))} cada</span>
+            ${e.temNota?'<button class="chip anx-chip" data-act="ver" data-tipo="nota">📄 Nota</button>':""}
+            ${e.temComp?'<button class="chip anx-chip" data-act="ver" data-tipo="comp">🧾 Comprovante</button>':'<span class="chip falta">sem comprovante</span>'}
+          </div>
+          ${souAdmin()
+            ? `<div class="aprov"><button class="btn ok" data-act="aprovar">✓ Aprovar</button><button class="btn ghost" data-act="recusar">Recusar</button></div>`
+            : `<div class="aprov"><button class="btn ghost" data-act="edit">Editar</button>${e.criadoPor===meuId?'<button class="btn ghost" data-act="delw">Excluir</button>':""}</div>`}
+        </div></div>`;
+    }).join("");
+
+    // lista do mês
+    let rows=expenses.filter(e=>e.aprovado&&mesDesp(e)===selMonth);
+    if(filter==="pend") rows=rows.filter(e=>!e.paid||(e.cartao&&futuro(mesDesp(e))));
+    if(filter==="paid") rows=rows.filter(e=>e.paid);
+    rows.sort((a,b)=>{
+      if(filter!=="paid"&&a.paid!==b.paid) return a.paid?1:-1;
+      if(!a.paid&&!b.paid){ const da=a.due||"9999", dbb=b.due||"9999"; if(da!==dbb) return da<dbb?-1:1; }
+      return (b.createdAt||0)-(a.createdAt||0);
+    });
+    const sumVal=rows.reduce((s,e)=>s+(e.value|0),0);
+    $("#sum").innerHTML = rows.length?`<span>${rows.length} despesa${rows.length>1?"s":""}</span><span>Total ${fmt(sumVal)} · ${fmt(Math.round(sumVal/nPessoas()))} cada</span>`:"";
+    const list=$("#list");
+    if(!ready&&!expenses.length) list.innerHTML='<div class="empty">Carregando despesas…</div>';
+    else if(!rows.length) list.innerHTML=`<div class="empty">${fc?"Nenhuma despesa neste mês.":filter==="pend"?"Nenhuma despesa a pagar 🎉":filter==="paid"?"Nenhuma despesa paga neste mês ainda.":"Nenhuma despesa neste mês ainda.<br>Toque em <b>+ Nova despesa</b>."}</div>`;
+    else list.innerHTML=rows.map(e=>{
+      let dueChip="";
+      if(e.due){
+        if(!e.paid){ const d=daysUntil(e.due), cls=d<0?"late":d<=3?"soon":"";
+          dueChip=`<span class="chip ${cls}">${d<0?"Venceu "+fmtDate(e.due):d===0?"Vence hoje":d===1?"Vence amanhã":"Vence "+fmtDate(e.due)}</span>`;
+        } else dueChip=`<span class="chip">Venc. ${fmtDate(e.due)}</span>`;
+      }
+      return `<div class="item ${e.paid?"paid":""}" data-id="${esc(e.id)}">
+        <button class="check ${e.paid?"on":""}" data-act="toggle" aria-label="Marcar como paga" ${ed?"":"disabled"}><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></button>
+        <div class="body" data-act="edit">
+          <div class="row1"><div class="nw">${avatar(e.payer,1)}<div class="name">${esc(e.name)}</div></div><div class="val">${fmt(e.value|0)}</div></div>
+          ${e.desc?`<div class="desc">${esc(e.desc)}</div>`:""}
+          <div class="row2">
+            ${e.cartao
+              ? `<span class="chip cart">💳 Cartão de ${esc(nomeDe(e.payer))} · já pago</span><span class="chip">os outros reembolsam ${fmt(Math.round((e.value|0)/nPessoas()))} cada</span>`
+              : `<span class="chip">${e.paid?"Pago por":"Paga"} ${esc(nomeDe(e.payer))}</span><span class="chip">${fmt(Math.round((e.value|0)/nPessoas()))} cada</span>`}
+            ${e.parcela?`<span class="chip parc">Parcela ${e.parcela.n}/${e.parcela.de}</span>`:""}
+            ${dueChip}
+            ${e.temNota?'<button class="chip anx-chip" data-act="ver" data-tipo="nota">📄 Nota</button>':""}
+            ${e.temComp?'<button class="chip anx-chip" data-act="ver" data-tipo="comp">🧾 Comprovante</button>':(e.paid?'<span class="chip falta">sem comprovante</span>':"")}
+          </div>
+        </div></div>`;
+    }).join("");
+
+    // pix
+    $("#pixList").innerHTML = membros.map(m=>`<div class="pixrow"><div style="min-width:0"><div class="pn">${avatar(m.id,1)}${esc(m.nome)}</div><div class="pk ${m.pix?"":"vazio"}">${m.pix?esc(m.pix):"sem chave Pix cadastrada"}</div></div>${m.pix?`<button class="btn copy" data-pix="${esc(m.pix)}">Copiar</button>`:(m.id===meuId?'<button class="btn copy" id="pixMine">Cadastrar</button>':"")}</div>`).join("");
+
+    // reembolsos
+    const rr=reembs.filter(r=>mesReemb(r)===selMonth).sort((a,b)=>(b.date||"").localeCompare(a.date||"")||(b.createdAt||0)-(a.createdAt||0));
+    $("#hReemb").style.display=rr.length?"flex":"none";
+    $("#reembList").innerHTML=rr.map(r=>`<div class="reemb" data-rid="${esc(r.id)}">
+      <div><div>${avatar(r.from,1)} <b>${esc(nomeDe(r.from))}</b> → ${esc(nomeDe(r.to))}</div><div class="d">${fmtDate(r.date)}</div>${r.hasComp?'<button class="cbtn" data-act="vercomp">📎 Ver comprovante</button>':(ed?'<button class="cbtn" data-act="anexar">📎 Anexar comprovante</button>':"")}</div>
+      <div style="display:flex;align-items:center;gap:6px"><b>${fmt(r.value|0)}</b>${ed?'<button class="more" data-act="delr" aria-label="Excluir" style="border:0;background:none;color:#94a3b8;font-size:20px;cursor:pointer">×</button>':""}</div>
+    </div>`).join("");
+
+    $("#fab").style.display=ed?"flex":"none";
+  }
+
+  // ---------- sheets ----------
+  let openSheet=null;
+  function open(id){ close(); openSheet=$(id); $("#bg").style.display="block"; requestAnimationFrame(()=>openSheet.classList.add("open")); }
+  function close(){ if(openSheet){ openSheet.classList.remove("open"); openSheet=null; } $("#bg").style.display="none"; }
+  $("#bg").addEventListener("click",close);
+  document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",close));
+
+  function handleWriteErr(e,errSel){
+    const code=e&&e.code;
+    let msg="Não deu para salvar. Tente de novo.";
+    if(code==="permission-denied") msg="O banco de dados recusou (permissão). Avise o Claude.";
+    else if(code==="unavailable") msg="Sem internet. Tente de novo.";
+    if(errSel) $(errSel).textContent=msg; else toast(msg);
+  }
+
+  // ---------- form despesa ----------
+  let editId=null, fPayer="", fPaid=false, saving=false, fForma="vista", fCartao=false;
+  const addMesesISO=(iso,k)=>{ const [y,m,d]=iso.split("-").map(Number); let mm=m-1+k, yy=y+Math.floor(mm/12); mm=((mm%12)+12)%12; const ult=new Date(yy,mm+1,0).getDate(); return yy+"-"+String(mm+1).padStart(2,"0")+"-"+String(Math.min(d,ult)).padStart(2,"0"); };
+  const nParc=()=>{ const n=parseInt(($("#fParc").value||"").replace(/\D/g,""),10); return isFinite(n)?n:0; };
+  const dividir=(v,n)=>{ const base=Math.floor(v/n), r=v-base*n; return Array.from({length:n},(_,i)=>base+(i===0?r:0)); };
+  function segPessoas(sel,val,cb){
+    const el=$(sel);
+    el.className="seg"+(membros.length<=2?" c2":"");
+    el.innerHTML=membros.map(m=>`<button type="button" data-p="${esc(m.id)}" class="${m.id===val?"on":""}"><span class="av sm" style="background:${corDe(m.id)}">${esc(inic(m.nome))}</span>${esc(m.nome)}</button>`).join("");
+  }
+  function setSeg(sel,val){ document.querySelectorAll(sel+" button").forEach(b=>b.classList.toggle("on",b.dataset.p===val)); }
+  function setForma(f){
+    fForma=f; setSeg("#segForma",f);
+    const p=f==="parc", c=f==="cartao";
+    $("#parcBox").style.display=(p||c)?"block":"none";
+    $("#fParc").placeholder=c?"Ex.: 3 (1 = à vista no cartão)":"Ex.: 3";
+    $("#lblDue").textContent=c?"Vencimento da 1ª fatura":p?"Vencimento da 1ª parcela":"Data de vencimento (opcional)";
+    $("#txtPaid").textContent=p?"1ª parcela já foi paga":"Já foi paga";
+    $("#togPaid").style.display=c?"none":"";
+    updPrev();
+  }
+  function updPrev(){
+    const c=parseMoney($("#fVal").value), ok=isFinite(c)&&c>0, N=nPessoas();
+    let t=`Dividido por ${N} ${N>1?"pessoas":"pessoa"}: <b>${fmt(ok?Math.round(c/N):0)}</b> para cada um`;
+    if(ok && fPayer) t+=`<br>Quem pagou: <b>${esc(nomeDe(fPayer))}</b> · os outros devolvem ${fmt(Math.round(c/N))} cada`;
+    if(!editId&&fForma==="cartao"){
+      const n=nParc()||1, d=$("#fDue").value;
+      if(ok&&n>=1&&n<=36){
+        const vs=dividir(c,n);
+        t=`💳 <b>${n}x de ${fmt(vs[n-1])}</b> no cartão de ${esc(nomeDe(fPayer))} · já conta como <b>pago</b><br>Cada um dos outros reembolsa <b>${fmt(Math.round(vs[n-1]/N))}</b> por mês`;
+        if(d){ const ds=Array.from({length:Math.min(n,4)},(_,i)=>fmtDate(addMesesISO(d,i))); t+=`<br>Faturas: ${ds.join(", ")}${n>4?" …":""}`; }
+        else t+=`<br>Escolha a data da 1ª fatura.`;
+      } else t=`Coloque o valor total e o número de parcelas (1 a 36).`;
+    } else if(!editId&&fForma==="parc"){
+      const n=nParc(), d=$("#fDue").value;
+      if(ok&&n>=2&&n<=36){
+        const vs=dividir(c,n);
+        t=`<b>${n}x de ${fmt(vs[n-1])}</b>${vs[0]!==vs[n-1]?` (1ª de ${fmt(vs[0])})`:""} · cada um paga <b>${fmt(Math.round(vs[n-1]/N))}</b> por parcela`;
+        if(d){ const ds=Array.from({length:Math.min(n,4)},(_,i)=>fmtDate(addMesesISO(d,i))); t+=`<br>Vencimentos: ${ds.join(", ")}${n>4?" …":""}`; }
+        else t+=`<br>Escolha a data da 1ª parcela.`;
+      } else t=`Coloque o valor total e o número de parcelas (2 a 36).`;
+    }
+    if(!souAdmin()) t+=`<br><span style="color:var(--gold2)">⏳ Vai ficar aguardando a aprovação do administrador.</span>`;
+    $("#splitPrev").innerHTML=t;
+  }
+  function openExp(e){
+    editId=e?e.id:null;
+    $("#expTitle").textContent=e?"Editar despesa":"Nova despesa";
+    $("#fName").value=e?e.name:"";
+    $("#fDesc").value=e?(e.desc||""):"";
+    $("#fVal").value=e?centsToInput(e.value|0):"";
+    $("#fDue").value=e?(e.due||""):"";
+    fPayer=e?e.payer:meuId; fPaid=e?!!e.paid:false;
+    segPessoas("#segPayer",fPayer); $("#chkPaid").classList.toggle("on",fPaid);
+    $("#btnDel").style.display=(e&&(souAdmin()||e.criadoPor===meuId))?"inline-block":"none";
+    $("#formaBox").style.display=e?"none":"block"; $("#fParc").value=""; setForma("vista");
+    fCartao=!!(e&&e.cartao); $("#chkCartao").classList.toggle("on",fCartao);
+    $("#togCartao").style.display=e?"":"none"; $("#togPaid").style.display=fCartao?"none":"";
+    anx.nota={state:e&&e.temNota?"existing":"none"};
+    anx.comp={state:e&&e.temComp?"existing":"none"};
+    renderAnx("nota"); renderAnx("comp");
+    $("#errExp").textContent=""; updPrev(); open("#sheetExp");
+    if(!e) setTimeout(()=>$("#fName").focus(),250);
+  }
+  $("#segPayer").addEventListener("click",ev=>{ const b=ev.target.closest("button"); if(!b)return; fPayer=b.dataset.p; setSeg("#segPayer",fPayer); updPrev(); });
+  $("#togCartao").addEventListener("click",()=>{ fCartao=!fCartao; $("#chkCartao").classList.toggle("on",fCartao); $("#togPaid").style.display=fCartao?"none":""; updPrev(); });
+  $("#togPaid").addEventListener("click",()=>{ fPaid=!fPaid; $("#chkPaid").classList.toggle("on",fPaid); updPrev(); });
+  $("#fVal").addEventListener("input",updPrev);
+  $("#segForma").addEventListener("click",ev=>{ const b=ev.target.closest("button"); if(!b)return; setForma(b.dataset.p); });
+  $("#fParc").addEventListener("input",updPrev);
+  $("#fDue").addEventListener("change",updPrev);
+  $("#fab").addEventListener("click",()=>openExp(null));
+
+  $("#formExp").addEventListener("submit",async ev=>{
+    ev.preventDefault(); if(saving) return;
+    const desc=$("#fDesc").value.trim().slice(0,500);
+    const name=$("#fName").value.trim(), value=parseMoney($("#fVal").value), due=$("#fDue").value||"";
+    if(!name){ $("#errExp").textContent="Coloque o nome da despesa."; return; }
+    if(!isFinite(value)||value<=0){ $("#errExp").textContent="Coloque um valor válido."; return; }
+    if(!fPayer){ $("#errExp").textContent="Escolha quem pagou."; return; }
+    if(!db){ $("#errExp").textContent="Sem conexão com o banco de dados."; return; }
+    const parcelado=!editId&&fForma==="parc", noCartao=!editId&&fForma==="cartao";
+    if(noCartao){
+      const n=nParc()||1;
+      if(n<1||n>36){ $("#errExp").textContent="Coloque o número de parcelas (1 a 36)."; return; }
+      if(!due){ $("#errExp").textContent="Escolha a data de vencimento da 1ª fatura."; return; }
+      if(value<n){ $("#errExp").textContent="Valor muito baixo para parcelar."; return; }
+    }
+    if(parcelado){
+      const n=nParc();
+      if(n<2||n>36){ $("#errExp").textContent="Coloque o número de parcelas (2 a 36)."; return; }
+      if(!due){ $("#errExp").textContent="Escolha a data de vencimento da 1ª parcela."; return; }
+      if(value<n){ $("#errExp").textContent="Valor muito baixo para parcelar."; return; }
+    }
+    saving=true; $("#btnSave").disabled=true;
+    if(anx.nota.state==="new"||anx.comp.state==="new") $("#btnSave").textContent="Enviando anexo…";
+    const adm=souAdmin();
+    try{
+      const id=editId||col("despesas").doc().id;
+      for(const tipo of ["nota","comp"]){
+        const a=anx[tipo], ref=col("anexos").doc(id+"_"+tipo);
+        if(a.state==="new") await ref.set({despesaId:id,tipo,nome:a.file.name,mime:a.file.mime,data:a.file.data,size:a.file.size,createdAt:Date.now()});
+        else if(a.state==="remove") await ref.delete();
+      }
+      const temNota=anx.nota.state==="new"||anx.nota.state==="existing";
+      const temComp=anx.comp.state==="new"||anx.comp.state==="existing";
+      if(editId){
+        const prev=expenses.find(x=>x.id===editId)||{};
+        const extra=prev.parcela?{parcela:prev.parcela}:{};
+        if(fCartao){ if(!due){ $("#errExp").textContent="Coloque a data da fatura."; throw {silencioso:true}; } Object.assign(extra,{cartao:true,mes:due.slice(0,7)}); }
+        else if(prev.cartao) Object.assign(extra,{cartao:false,mes:""});
+        const pg=fCartao?true:(prev.cartao?false:fPaid);
+        const aprov = adm ? true : false;
+        if(prev.parcela&&prev.parcela.grupo&&fCartao!==!!prev.cartao){
+          const outras=expenses.filter(x=>x.id!==editId&&x.parcela&&x.parcela.grupo===prev.parcela.grupo), b2=db.batch();
+          outras.forEach(x=>b2.update(col("despesas").doc(x.id), fCartao?{cartao:true,paid:true,paidAt:x.due||today(),mes:(x.due||today()).slice(0,7),updatedAt:Date.now()}:{cartao:false,paid:false,paidAt:"",mes:"",updatedAt:Date.now()}));
+          if(outras.length) await b2.commit();
+        }
+        await col("despesas").doc(editId).set({name,desc,value,payer:fPayer,due,paid:pg,paidAt:fCartao?due:(pg?(prev.paidAt||today()):""),createdAt:prev.createdAt||Date.now(),updatedAt:Date.now(),temNota,temComp,aprovado:aprov,espera:aprov?"":((pg&&!prev.paid)?"pago":"nova"),criadoPor:prev.criadoPor||meuId,...extra});
+        toast(aprov?"Despesa atualizada":"Atualizada · aguardando aprovação");
+      } else if(noCartao){
+        const n=nParc()||1, vs=dividir(value,n), now=Date.now(), batch=db.batch();
+        for(let i=0;i<n;i++){
+          const ref=i===0?col("despesas").doc(id):col("despesas").doc();
+          const d=addMesesISO(due,i), p1=i===0;
+          const doc={name,desc,value:vs[i],payer:fPayer,due:d,paid:true,paidAt:d,mes:d.slice(0,7),cartao:true,createdAt:now+i,updatedAt:now,temNota:p1&&temNota,temComp:p1&&temComp,aprovado:adm,espera:adm?"":"nova",criadoPor:meuId};
+          if(n>1) doc.parcela={n:i+1,de:n,grupo:id,total:value};
+          batch.set(ref,doc);
+        }
+        await batch.commit();
+        toast(adm?(n>1?n+" parcelas no cartão lançadas":"Compra no cartão lançada"):"Enviado · aguardando aprovação");
+      } else if(parcelado){
+        const n=nParc(), vs=dividir(value,n), now=Date.now(), batch=db.batch();
+        for(let i=0;i<n;i++){
+          const ref=i===0?col("despesas").doc(id):col("despesas").doc();
+          const p1=i===0;
+          batch.set(ref,{name,desc,value:vs[i],payer:fPayer,due:addMesesISO(due,i),paid:p1&&fPaid,paidAt:(p1&&fPaid)?today():"",createdAt:now+i,updatedAt:now,temNota:p1&&temNota,temComp:p1&&temComp,parcela:{n:i+1,de:n,grupo:id,total:value},aprovado:adm,espera:adm?"":"nova",criadoPor:meuId});
+        }
+        await batch.commit();
+        toast(adm?n+" parcelas lançadas":"Enviado · aguardando aprovação");
+      } else {
+        await col("despesas").doc(id).set({name,desc,value,payer:fPayer,due,paid:fPaid,paidAt:fPaid?today():"",createdAt:Date.now(),updatedAt:Date.now(),temNota,temComp,aprovado:adm,espera:adm?"":"nova",criadoPor:meuId});
+        toast(adm?"Despesa lançada":"Enviado · aguardando aprovação");
+      }
+      close();
+    }catch(e){ if(!(e&&e.silencioso)) handleWriteErr(e,"#errExp"); }
+    finally{ saving=false; $("#btnSave").disabled=false; $("#btnSave").textContent="Salvar"; }
+  });
+
+  // ---------- aprovar / recusar ----------
+  async function aprovarGrupo(e,ok){
+    const irmaos=(e.parcela&&e.parcela.grupo)?expenses.filter(x=>x.parcela&&x.parcela.grupo===e.parcela.grupo&&!x.aprovado):[e];
+    const batch=db.batch();
+    irmaos.forEach(x=>{
+      if(ok) batch.update(col("despesas").doc(x.id),{aprovado:true,espera:"",updatedAt:Date.now()});
+      else if(x.espera==="pago") batch.update(col("despesas").doc(x.id),{aprovado:true,espera:"",paid:false,paidAt:"",updatedAt:Date.now()});
+      else batch.delete(col("despesas").doc(x.id));
+    });
+    await batch.commit();
+    if(!ok&&e.espera!=="pago"){ irmaos.forEach(x=>{ col("anexos").doc(x.id+"_nota").delete().catch(()=>{}); col("anexos").doc(x.id+"_comp").delete().catch(()=>{}); }); }
+    toast(ok?"Aprovado ✓ já entrou na conta":(e.espera==="pago"?"Pagamento recusado · voltou para a pagar":"Despesa recusada e excluída"));
+  }
+  $("#waitList").addEventListener("click",async ev=>{
+    const it=ev.target.closest(".item"); if(!it) return;
+    const e=expenses.find(x=>x.id===it.dataset.id); if(!e) return;
+    const act=ev.target.closest("[data-act]")?.dataset.act;
+    if(act==="ver"){ verAnexoSalvo(e.id,ev.target.closest("[data-tipo]").dataset.tipo,e.name); return; }
+    if(act==="edit"){ openExp(e); return; }
+    if(act==="aprovar"){ try{ await aprovarGrupo(e,true); }catch(err){ handleWriteErr(err); } return; }
+    if(act==="recusar"){
+      confirmDel(e.espera==="pago"?"Recusar o pagamento?":"Recusar a despesa?", e.espera==="pago"?`"${e.name}" volta para a lista de contas a pagar.`:`"${e.name}" — ${fmt(e.value|0)} será excluída.`, ()=>aprovarGrupo(e,false));
+      return;
+    }
+    if(act==="delw"){ confirmDel("Excluir despesa?",`"${e.name}" — ${fmt(e.value|0)}`,()=>aprovarGrupo(e,false)); return; }
+  });
+
+  // ---------- toggle pago / editar ----------
+  const busy=new Set();
+  $("#list").addEventListener("click",async ev=>{
+    const item=ev.target.closest(".item"); if(!item) return;
+    const id=item.dataset.id, e=expenses.find(x=>x.id===id); if(!e) return;
+    const act=ev.target.closest("[data-act]")?.dataset.act;
+    if(act==="toggle"){
+      if(!editavel()||!db||busy.has(id)) return;
+      if(e.cartao){ toast("💳 Pago no cartão de "+nomeDe(e.payer)+". Os outros só reembolsam a parte deles."); return; }
+      busy.add(id);
+      try{
+        const paid=!e.paid, adm=souAdmin();
+        if(paid&&!adm){
+          await col("despesas").doc(id).update({paid:true,paidAt:today(),aprovado:false,espera:"pago",updatedAt:Date.now()});
+          toast("Marcada como paga · aguardando aprovação. Toque nela para anexar o comprovante.");
+        } else {
+          await col("despesas").doc(id).update({paid,paidAt:paid?today():"",updatedAt:Date.now()});
+          toast(paid?(e.temComp?"Marcada como paga":"Paga ✓ Toque nela para anexar o comprovante"):"Desmarcada");
+        }
+      }catch(err){ handleWriteErr(err); }
+      finally{ busy.delete(id); }
+    } else if(act==="ver"){ verAnexoSalvo(id,ev.target.closest("[data-tipo]").dataset.tipo,e.name); }
+    else if(act==="edit"){ if(editavel()) openExp(e); else toast("Mês fechado: não dá para mudar"); }
+  });
+
+  // ---------- anexos ----------
+  const TIPO_NOME={nota:"Nota da despesa",comp:"Comprovante de pagamento"};
+  const anx={nota:{state:"none"},comp:{state:"none"}};
+  let anxTipo=null;
+  function renderAnx(tipo){
+    const a=anx[tipo], box=$(tipo==="nota"?"#anxNota":"#anxComp"), tem=a.state==="existing"||a.state==="new";
+    box.classList.toggle("tem",tem);
+    const info=a.state==="new"?"📎 "+esc(a.file.name)+" · "+Math.round(a.file.size/1024)+" KB":a.state==="existing"?"📎 Anexado":"Nenhum arquivo";
+    const bts=tem
+      ? '<button type="button" class="btn copy" data-anx="ver" data-t="'+tipo+'">Ver</button><button type="button" class="btn copy" data-anx="trocar" data-t="'+tipo+'">Trocar</button><button type="button" class="btn ghost" data-anx="tirar" data-t="'+tipo+'">✕</button>'
+      : '<button type="button" class="btn copy" data-anx="add" data-t="'+tipo+'">Anexar</button>';
+    box.innerHTML='<div class="ai">'+info+'</div><div class="ab">'+bts+'</div>';
+  }
+  document.addEventListener("click",ev=>{
+    const b=ev.target.closest("[data-anx]"); if(!b) return;
+    const tipo=b.dataset.t, a=anx[tipo], act=b.dataset.anx;
+    if(act==="add"||act==="trocar"){ anxTipo=tipo; $("#fileIn").value=""; $("#fileIn").click(); }
+    else if(act==="tirar"){ anx[tipo]={state:(a.state==="existing"||(a.state==="new"&&a.tinha))?"remove":"none"}; renderAnx(tipo); }
+    else if(act==="ver"){
+      if(a.state==="new") mostrarAnexo(TIPO_NOME[tipo],a.file.data,a.file.mime);
+      else if(editId) verAnexoSalvo(editId,tipo,$("#fName").value);
+    }
+  });
+  $("#fileIn").addEventListener("change",async()=>{
+    const f=$("#fileIn").files[0]; if(!f||!anxTipo) return;
+    const tipo=anxTipo; $("#errExp").textContent="";
+    $(tipo==="nota"?"#anxNota":"#anxComp").querySelector(".ai").textContent="Preparando arquivo…";
+    try{
+      const file=await prepararArquivo(f);
+      const tinha=anx[tipo].state==="existing"||anx[tipo].state==="remove"||!!anx[tipo].tinha;
+      anx[tipo]={state:"new",file,tinha};
+    }catch(err){ $("#errExp").textContent=err.message||"Não deu para usar esse arquivo."; }
+    renderAnx(tipo);
+  });
+  const lerDataURL=blob=>new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=()=>rej(new Error("Não deu para ler o arquivo.")); r.readAsDataURL(blob); });
+  const carregarImagem=f=>new Promise((res,rej)=>{ const u=URL.createObjectURL(f); const img=new Image(); img.onload=()=>{URL.revokeObjectURL(u);res(img);}; img.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("Não deu para abrir essa imagem. Tente uma foto ou print."));}; img.src=u; });
+  const LIMITE=700*1024;
+  async function prepararArquivo(f){
+    const nome=(f.name||"arquivo").slice(0,80);
+    if(f.type==="application/pdf"||/\.pdf$/i.test(nome)){
+      if(f.size>650*1024) throw new Error("Esse PDF é grande demais ("+Math.round(f.size/1024)+" KB, o máximo é 650 KB). Tire uma foto ou um print da nota.");
+      return {name:nome,mime:"application/pdf",data:await lerDataURL(f),size:f.size};
+    }
+    if(!/^image\//.test(f.type)&&!/\.(jpe?g|png|heic|heif|webp)$/i.test(nome)) throw new Error("Use uma foto ou um PDF.");
+    const img=await carregarImagem(f);
+    for(const [max,q] of [[1600,.72],[1280,.6],[1000,.5],[800,.45]]){
+      const r=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+      const c=document.createElement("canvas"); c.width=Math.round(img.naturalWidth*r); c.height=Math.round(img.naturalHeight*r);
+      const g=c.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,c.width,c.height); g.drawImage(img,0,0,c.width,c.height);
+      const data=c.toDataURL("image/jpeg",q), size=Math.round((data.length-23)*3/4);
+      if(size<=LIMITE) return {name:nome.replace(/\.[^.]+$/,"")+".jpg",mime:"image/jpeg",data,size};
+    }
+    throw new Error("A imagem ficou grande demais. Tente um print da tela.");
+  }
+  async function verAnexoSalvo(id,tipo,nomeDesp){
+    toast("Abrindo anexo…");
+    try{
+      const d=await col("anexos").doc(id+"_"+tipo).get();
+      if(!d.exists){ toast("Anexo não encontrado"); return; }
+      const x=d.data()||{};
+      mostrarAnexo(TIPO_NOME[tipo]+(nomeDesp?" · "+nomeDesp:""),String(x.data||""),String(x.mime||""));
+    }catch(e){ toast("Não deu para abrir. Confira a internet."); }
+  }
+  let vUrl=null;
+  async function mostrarAnexo(titulo,data,mime){
+    if(!/^data:(image\/(jpeg|png|webp|gif)|application\/pdf);base64,/.test(data)){ toast("Anexo inválido"); return; }
+    if(vUrl){ URL.revokeObjectURL(vUrl); vUrl=null; }
+    try{ vUrl=URL.createObjectURL(await (await fetch(data)).blob()); }catch(e){}
+    $("#vTitle").textContent=titulo;
+    const body=$("#vBody"); body.replaceChildren();
+    if(mime==="application/pdf"){
+      const p=document.createElement("div"); p.style.cssText="color:#ddd;text-align:center;margin-top:40px;font-size:15px";
+      p.textContent='É um PDF. Toque em "Abrir" para ver.'; body.append(p);
+    } else { const img=document.createElement("img"); img.src=data; img.alt=titulo; body.append(img); }
+    $("#viewer").classList.add("open");
+  }
+  $("#vClose").addEventListener("click",()=>$("#viewer").classList.remove("open"));
+  $("#vOpen").addEventListener("click",()=>{ if(vUrl) window.open(vUrl,"_blank"); });
+
+  // ---------- excluir ----------
+  let confAction=null;
+  function confirmDel(title,txt,fn){ $("#confTitle").textContent=title; $("#confTxt").textContent=txt; confAction=fn; open("#sheetConfirm"); }
+  $("#confOk").addEventListener("click",async()=>{ const fn=confAction; confAction=null; close(); if(fn){ try{ await fn(); }catch(e){ handleWriteErr(e); } } });
+  $("#btnDel").addEventListener("click",()=>{
+    const e=expenses.find(x=>x.id===editId); if(!e) return;
+    confirmDel("Excluir despesa?",`"${e.name}" — ${fmt(e.value|0)}`,async()=>{
+      await col("despesas").doc(e.id).delete(); toast("Despesa excluída");
+      col("anexos").doc(e.id+"_nota").delete().catch(()=>{}); col("anexos").doc(e.id+"_comp").delete().catch(()=>{});
+    });
+  });
+
+  // ---------- reembolso ----------
+  let rFrom="", rTo="", rCompData=null;
+  const lerArquivo=f=>new Promise((ok,err)=>{ const r=new FileReader(); r.onload=()=>ok(r.result); r.onerror=err; r.readAsDataURL(f); });
+  async function prepararComprovante(f){
+    if(f.type==="application/pdf"){
+      if(f.size>700*1024) throw {msg:"PDF muito grande (máx. 700 KB). Mande um print da tela."};
+      return {tipo:"pdf",nome:String(f.name||"comprovante.pdf").slice(0,80),data:await lerArquivo(f),criadoEm:Date.now()};
+    }
+    if(!/^image\//.test(f.type)) throw {msg:"Use uma foto ou PDF."};
+    const url=await lerArquivo(f);
+    const img=await new Promise((ok,err)=>{ const i=new Image(); i.onload=()=>ok(i); i.onerror=err; i.src=url; });
+    let max=1400,q=.72,out="";
+    for(let t=0;t<5;t++){
+      const sc=Math.min(1,max/Math.max(img.width,img.height));
+      const cv=document.createElement("canvas"); cv.width=Math.round(img.width*sc); cv.height=Math.round(img.height*sc);
+      const cx=cv.getContext("2d"); cx.fillStyle="#fff"; cx.fillRect(0,0,cv.width,cv.height); cx.drawImage(img,0,0,cv.width,cv.height);
+      out=cv.toDataURL("image/jpeg",q);
+      if(out.length<700*1024) break;
+      max=Math.round(max*.75); q=Math.max(.5,q-.07);
+    }
+    if(out.length>=900*1024) throw {msg:"Imagem muito grande. Tente um print da tela."};
+    return {tipo:"img",nome:String(f.name||"comprovante.jpg").slice(0,80),data:out,criadoEm:Date.now()};
+  }
+  function limparComp(){ rCompData=null; $("#rComp").value=""; $("#rCompPrev").style.display="none"; $("#rCompPrev").innerHTML=""; $("#rCompTxt").textContent="📎 Anexar foto ou PDF do comprovante"; }
+  $("#rComp").addEventListener("change",async()=>{
+    const f=$("#rComp").files[0]; if(!f) return;
+    $("#rCompTxt").textContent="Preparando…"; $("#errReemb").textContent="";
+    try{
+      rCompData=await prepararComprovante(f);
+      const pv=$("#rCompPrev"); pv.style.display="flex";
+      pv.innerHTML=(rCompData.tipo==="img"?`<img src="${rCompData.data}" alt="">`:`<span style="font-size:28px">📄</span>`)+`<span>${esc(rCompData.nome)}</span><button type="button" id="rCompX">Remover</button>`;
+      $("#rCompTxt").textContent="📎 Trocar comprovante";
+      $("#rCompX").onclick=limparComp;
+    }catch(e){ limparComp(); $("#errReemb").textContent=e&&e.msg?e.msg:"Não consegui ler o arquivo."; }
+  });
+  function updRPrev(){
+    const c=parseMoney($("#rVal").value);
+    $("#reembPrev").innerHTML = (isFinite(c)&&c>0&&rFrom&&rTo&&rFrom!==rTo)
+      ? `<b>${esc(nomeDe(rFrom))}</b> devolveu ${fmt(c)} para <b>${esc(nomeDe(rTo))}</b>`
+      : (rFrom&&rFrom===rTo?'<span style="color:var(--red)">Escolha duas pessoas diferentes.</span>':"");
+  }
+  $("#btnReemb").addEventListener("click",()=>{
+    const {net}=compute(), ac=acertos(net);
+    const meu=ac.find(a=>a.de===meuId)||ac[0];
+    rFrom=meu?meu.de:meuId; rTo=meu?meu.para:(membros.find(m=>m.id!==rFrom)||{}).id||"";
+    segPessoas("#segFrom",rFrom); segPessoas("#segTo",rTo);
+    $("#rVal").value=meu?centsToInput(meu.valor):"";
+    $("#rDate").value=today(); $("#errReemb").textContent=""; limparComp(); updRPrev(); open("#sheetReemb");
+  });
+  $("#segFrom").addEventListener("click",ev=>{ const b=ev.target.closest("button"); if(!b)return; rFrom=b.dataset.p; setSeg("#segFrom",rFrom); updRPrev(); });
+  $("#segTo").addEventListener("click",ev=>{ const b=ev.target.closest("button"); if(!b)return; rTo=b.dataset.p; setSeg("#segTo",rTo); updRPrev(); });
+  $("#rVal").addEventListener("input",updRPrev);
+  $("#formReemb").addEventListener("submit",async ev=>{
+    ev.preventDefault(); if(saving) return;
+    const value=parseMoney($("#rVal").value), date=$("#rDate").value||today();
+    if(!isFinite(value)||value<=0){ $("#errReemb").textContent="Coloque um valor válido."; return; }
+    if(!rFrom||!rTo||rFrom===rTo){ $("#errReemb").textContent="Escolha quem pagou e quem recebeu (pessoas diferentes)."; return; }
+    saving=true;
+    try{
+      const ref=col("reembolsos").doc();
+      if(rCompData){ toast("Enviando comprovante…"); await col("comprovantes").doc(ref.id).set(rCompData); }
+      const mesR=(date.slice(0,7)<curMonth())?curMonth():date.slice(0,7);
+      await ref.set({from:rFrom,to:rTo,value,date,mes:clampMes(mesR),hasComp:!!rCompData,createdAt:Date.now(),criadoPor:meuId});
+      toast("Reembolso registrado"); limparComp(); close();
+    }catch(e){ handleWriteErr(e,"#errReemb"); }
+    finally{ saving=false; }
+  });
+  let attachFor=null;
+  $("#reembList").addEventListener("click",ev=>{
+    const b=ev.target.closest("[data-act]"); if(!b) return;
+    const id=b.closest(".reemb").dataset.rid, r=reembs.find(x=>x.id===id); if(!r) return;
+    const act=b.dataset.act;
+    if(act==="vercomp"){ verComprovante(id); return; }
+    if(act==="anexar"){ attachFor=id; $("#attachLater").value=""; $("#attachLater").click(); return; }
+    if(act!=="delr") return;
+    confirmDel("Excluir reembolso?",`${nomeDe(r.from)} → ${nomeDe(r.to)} · ${fmt(r.value|0)}`,async()=>{
+      await col("reembolsos").doc(id).delete();
+      if(r.hasComp){ try{ await col("comprovantes").doc(id).delete(); }catch(e){} }
+      toast("Reembolso excluído");
+    });
+  });
+  $("#attachLater").addEventListener("change",async()=>{
+    const f=$("#attachLater").files[0], id=attachFor; attachFor=null; if(!f||!id) return;
+    try{
+      toast("Enviando comprovante…");
+      const c=await prepararComprovante(f);
+      await col("comprovantes").doc(id).set(c);
+      await col("reembolsos").doc(id).update({hasComp:true});
+      toast("Comprovante anexado");
+    }catch(e){ toast(e&&e.msg?e.msg:"Não deu para anexar. Tente de novo."); }
+  });
+  async function verComprovante(id){
+    $("#compBody").textContent="Carregando…"; open("#sheetComp");
+    try{
+      const d=await col("comprovantes").doc(id).get();
+      const c=d.exists?d.data():null;
+      if(!c||typeof c.data!=="string"||!/^data:(image\/jpeg|image\/png|application\/pdf);base64,/.test(c.data)){ $("#compBody").textContent="Comprovante não encontrado."; return; }
+      if(c.tipo==="pdf"){
+        const bin=atob(c.data.split(",")[1]); const arr=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+        const u=URL.createObjectURL(new Blob([arr],{type:"application/pdf"}));
+        $("#compBody").innerHTML=`<div style="font-size:40px">📄</div><div style="margin:6px 0 12px">${esc(c.nome||"comprovante.pdf")}</div><a class="btn pri" style="display:inline-block;text-decoration:none" href="${u}" target="_blank" rel="noopener">Abrir PDF</a>`;
+      } else $("#compBody").innerHTML=`<img src="${c.data}" alt="Comprovante">`;
+    }catch(e){ $("#compBody").textContent="Não deu para abrir. Confira a internet."; }
+  }
+
+  // ---------- copiar pix ----------
+  document.addEventListener("click",async ev=>{
+    const b=ev.target.closest("[data-pix]"); if(!b) return;
+    const ok=await copyText(b.dataset.pix);
+    if(ok){ const old=b.textContent; b.textContent="Copiado ✓"; setTimeout(()=>b.textContent=old,1800); toast("Chave Pix copiada"); }
+    else toast("Segure o número para copiar");
+  });
+
+  // ---------- convite ----------
+  async function convidar(){
+    const url=linkConvite();
+    const data={title:"Despesas · "+grupo.nome,text:`Entre no grupo "${grupo.nome}" no app Despesas (o código é ${gid}):`,url};
+    if(navigator.share){ try{ await navigator.share(data); return; }catch(e){ if(e&&e.name==="AbortError") return; } }
+    const ok=await copyText(url); toast(ok?"Link copiado: cole no WhatsApp":url);
+  }
+  $("#btnShare").addEventListener("click",convidar);
+  $("#cfgShare").addEventListener("click",convidar);
+  $("#cfgCopy").addEventListener("click",async()=>{ const ok=await copyText(linkConvite()); toast(ok?"Link copiado":linkConvite()); });
+
+  // ---------- configurações do grupo ----------
+  function renderCfg(){
+    const adm=souAdmin();
+    $("#cfgInfo").innerHTML=`Grupo <b>${esc(grupo.nome)}</b> · código <b>${esc(gid)}</b><br>Você é <b>${esc(memDe(meuId)?memDe(meuId).nome:"—")}</b>${adm?" e administrador deste grupo":""}.`;
+    $("#cfgLink").textContent=linkConvite();
+    $("#cfgMembros").innerHTML=membros.map(m=>`<div class="mrow">${avatar(m.id)}<div class="inf"><div class="nm">${esc(m.nome)}${m.id===grupo.adminId?" · admin":""}${m.id===meuId?" (você)":""}</div><div class="sb">${m.pix?esc(m.pix):"sem Pix"}</div></div>${(adm&&m.id!==grupo.adminId)?`<button class="x" data-rm="${esc(m.id)}" title="Remover">×</button>`:""}</div>`).join("");
+    $("#cfgAddBox").classList.toggle("hide",!adm);
+    $("#cfgAdminBox").classList.toggle("hide",adm);
+    $("#cfgPix").value=(memDe(meuId)||{}).pix||"";
+    $("#cfgErr").textContent="";
+  }
+  $("#btnCfg").addEventListener("click",()=>{ renderCfg(); open("#sheetCfg"); });
+  $("#cfgMembros").addEventListener("click",async ev=>{
+    const b=ev.target.closest("[data-rm]"); if(!b) return;
+    const m=memDe(b.dataset.rm); if(!m) return;
+    confirmDel("Remover do grupo?",`${m.nome} sai do grupo. As despesas que ele pagou continuam no histórico.`,async()=>{
+      await docG().update({membros:membros.filter(x=>x.id!==m.id)});
+      toast("Removido do grupo");
+    });
+  });
+  $("#cfgAdd").addEventListener("click",async()=>{
+    const nome=$("#cfgAddNome").value.trim();
+    if(nome.length<2){ $("#cfgErr").textContent="Coloque o nome da pessoa."; return; }
+    try{
+      await docG().update({membros:[...membros,{id:novoId(),nome:nome.slice(0,30),pix:""}]});
+      $("#cfgAddNome").value=""; toast("Pessoa adicionada");
+    }catch(e){ handleWriteErr(e,"#cfgErr"); }
+  });
+  $("#cfgPixSave").addEventListener("click",async()=>{
+    const pix=$("#cfgPix").value.trim().slice(0,80);
+    try{ await docG().update({membros:membros.map(m=>m.id===meuId?{...m,pix}:m)}); toast("Chave Pix salva"); }
+    catch(e){ handleWriteErr(e,"#cfgErr"); }
+  });
+  $("#cfgAdminOk").addEventListener("click",()=>{
+    const s=$("#cfgSenha").value.trim();
+    if(!s){ $("#cfgErr").textContent="Coloque a senha."; return; }
+    if(s!==String(grupo.senha||"")){ $("#cfgErr").textContent="Senha errada."; return; }
+    LS("dsp_adm_"+gid,"1"); $("#cfgSenha").value=""; renderCfg(); render(); toast("Agora você é administrador neste aparelho");
+  });
+  $("#cfgSair").addEventListener("click",()=>{
+    confirmDel("Sair deste grupo?","Este grupo sai da lista deste aparelho. O grupo e as despesas continuam salvos — dá para voltar pelo código "+gid+".",()=>{
+      esquecer(gid); LS("dsp_g",null); LS("dsp_m",null); LS("dsp_adm_"+gid,null); location.href=location.pathname;
+    });
+  });
+  $("#cfgTrocar").addEventListener("click",()=>{ close(); mostrarStart(); });
+  document.addEventListener("click",ev=>{ if(ev.target.id==="pixMine"){ renderCfg(); open("#sheetCfg"); setTimeout(()=>$("#cfgPix").focus(),300); } });
+
+  // ---------- meses / filtros ----------
+  $("#mPrev").addEventListener("click",()=>{ if(selMonth>primeiroMes()){ selMonth=addMes(selMonth,-1); render(); } });
+  $("#mNext").addEventListener("click",()=>{ if(selMonth<ultimoMes()){ selMonth=addMes(selMonth,1); render(); } });
+  $("#tabs").addEventListener("click",ev=>{ const b=ev.target.closest("button"); if(!b)return; filter=b.dataset.f; document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b)); render(); });
+  let _mesVisto=curMonth();
+  setInterval(()=>{ const c=curMonth(); if(c!==_mesVisto){ if(selMonth===_mesVisto) selMonth=c; _mesVisto=c; render(); } },60000);
+
+  // ---------- dados ----------
+  const ALF="abcdefghijkmnpqrstuvwxyz23456789";
+  const novoId=()=>Array.from({length:6},()=>ALF[Math.floor(Math.random()*ALF.length)]).join("");
+  function clean(d){
+    const x=d.data()||{};
+    return {
+      id:d.id,
+      name:String(x.name||"").slice(0,80),
+      desc:String(x.desc||"").slice(0,500),
+      value:Math.max(0,Math.round(Number(x.value)||0)),
+      payer:String(x.payer||""),
+      due:/^\d{4}-\d{2}-\d{2}$/.test(x.due||"")?x.due:"",
+      paid:!!x.paid, paidAt:/^\d{4}-\d{2}-\d{2}$/.test(x.paidAt||"")?x.paidAt:"",
+      mes:/^\d{4}-\d{2}$/.test(x.mes||"")?x.mes:"", createdAt:Number(x.createdAt)||0,
+      temNota:!!x.temNota, temComp:!!x.temComp, cartao:!!x.cartao,
+      aprovado:x.aprovado!==false, espera:String(x.espera||""), criadoPor:String(x.criadoPor||""),
+      parcela:(x.parcela&&Number(x.parcela.n)>0&&Number(x.parcela.de)>1)?{n:Math.round(Number(x.parcela.n)),de:Math.round(Number(x.parcela.de)),grupo:String(x.parcela.grupo||""),total:Number(x.parcela.total)||0}:null
+    };
+  }
+  function cleanR(d){
+    const x=d.data()||{};
+    return {id:d.id,from:String(x.from||""),to:String(x.to||""),value:Math.max(0,Math.round(Number(x.value)||0)),date:/^\d{4}-\d{2}-\d{2}$/.test(x.date||"")?x.date:"",hasComp:!!x.hasComp,mes:/^\d{4}-\d{2}$/.test(x.mes||"")?x.mes:"",createdAt:Number(x.createdAt)||0};
+  }
+  function cleanG(d){
+    const x=d.data()||{};
+    const ms=Array.isArray(x.membros)?x.membros.filter(m=>m&&m.id).map(m=>({id:String(m.id),nome:String(m.nome||"?").slice(0,30),pix:String(m.pix||"").slice(0,80)})):[];
+    return {nome:String(x.nome||"Grupo").slice(0,40),senha:String(x.senha||""),adminId:String(x.adminId||""),membros:ms,createdAt:Number(x.createdAt)||0};
+  }
+  function ouvirDados(){
+    unsub.forEach(f=>{try{f();}catch(e){}}); unsub=[];
+    const timer=setTimeout(()=>{ if(!loadedExp){ banner("Os dados ainda não chegaram. Confira a internet."); setStatus(false,"sem sinal"); } },12000);
+    const hora=()=>new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+    const ok=()=>{ clearTimeout(timer); banner(""); setStatus(true,"ao vivo · "+hora()); };
+    const fail=err=>{ clearTimeout(timer); loadedExp=loadedReemb=true; setStatus(false,"erro"); banner(err&&err.code==="permission-denied"?"O banco de dados recusou o acesso. Avise o Claude para liberar.":"Conexão perdida. Feche e abra o app de novo."); render(); };
+    unsub.push(col("despesas").onSnapshot({includeMetadataChanges:true},snap=>{
+      expenses=snap.docs.filter(d=>d.exists).map(clean); loadedExp=true;
+      if(!snap.metadata.fromCache) ok(); else setStatus(false,"atualizando…");
+      render();
+    },fail));
+    unsub.push(col("reembolsos").onSnapshot({includeMetadataChanges:true},snap=>{
+      reembs=snap.docs.filter(d=>d.exists).map(cleanR); loadedReemb=true;
+      if(!snap.metadata.fromCache) ok();
+      render();
+    },fail));
+  }
+  let ouvindo=false;
+  function entrarNoApp(){
+    $("#gate").classList.add("hide"); $("#app").classList.remove("hide");
+    document.title="Despesas · "+grupo.nome;
+    render();
+    if(!ouvindo){ ouvindo=true; ouvirDados(); }
+  }
+  let gSub=null;
+  function ouvirGrupo(){
+    if(gSub){ try{ gSub(); }catch(e){} gSub=null; }
+    gSub=db.collection("grupos").doc(gid).onSnapshot(d=>{
+      if(!d.exists){ LS("dsp_g",null); LS("dsp_m",null); toast("Esse grupo não existe mais."); mostrarStart(); return; }
+      grupo=cleanG(d); membros=grupo.membros;
+      if(memDe(meuId)) lembrar(gid,meuId,grupo.nome);
+      if(grupo.adminId===meuId&&LS("dsp_adm_"+gid)!=="1"&&membros.length===1) LS("dsp_adm_"+gid,"1");
+      if(!memDe(meuId)){ mostrarJoin(); return; }
+      entrarNoApp();
+      if(openSheet===$("#sheetCfg")) renderCfg();
+    },err=>{ setStatus(false,"erro"); banner("Não deu para carregar o grupo. Confira a internet."); });
+  }
+
+  // ---------- entrada ----------
+  function mostrarStart(){
+    $("#app").classList.add("hide"); $("#gate").classList.remove("hide");
+    $("#gStart").classList.remove("hide"); $("#gJoin").classList.add("hide");
+    const l=lista();
+    $("#gMeus").classList.toggle("hide",!l.length);
+    $("#gMeusSep").classList.toggle("hide",!l.length);
+    $("#cTit").textContent=l.length?"Criar outro grupo":"Criar um grupo";
+    $("#gMeusList").innerHTML=l.map(x=>`<button type="button" data-gid="${esc(x.g)}"><span class="av" style="background:${CORES[(x.g.charCodeAt(0)+x.g.charCodeAt(1))%CORES.length]}">${esc(inic(x.n||x.g))}</span><span>${esc(x.n||"Grupo "+x.g)}<br><small style="color:var(--muted);font-weight:500">código ${esc(x.g)}</small></span></button>`).join("");
+  }
+  document.addEventListener("click",ev=>{
+    const b=ev.target.closest("#gMeusList [data-gid]"); if(!b) return;
+    const x=daLista(b.dataset.gid); if(!x) return;
+    gid=x.g; meuId=x.m; LS("dsp_g",gid); LS("dsp_m",meuId);
+    expenses=[]; reembs=[]; loadedExp=loadedReemb=false; selMonth=curMonth();
+    ouvirGrupo();
+  });
+  function mostrarJoin(){
+    $("#app").classList.add("hide"); $("#gate").classList.remove("hide");
+    $("#gStart").classList.add("hide"); $("#gJoin").classList.remove("hide");
+    $("#gJoinTitle").textContent='Entrar em "'+grupo.nome+'"';
+    $("#gJoinSub").textContent=membros.length?"Toque no seu nome, ou coloque o seu nome embaixo se você ainda não está na lista.":"Coloque o seu nome para entrar no grupo.";
+    $("#gJoinList").innerHTML=membros.map(m=>`<button type="button" data-mid="${esc(m.id)}">${avatar(m.id)}<span>${esc(m.nome)}${m.id===grupo.adminId?" · admin":""}</span></button>`).join("");
+    $("#gJoinErr").textContent="";
+  }
+  let joinSel="";
+  $("#gJoinList").addEventListener("click",ev=>{
+    const b=ev.target.closest("[data-mid]"); if(!b) return;
+    joinSel=b.dataset.mid;
+    document.querySelectorAll("#gJoinList button").forEach(x=>x.classList.toggle("on",x===b));
+    $("#gJoinNome").value=""; $("#gJoinErr").textContent="";
+  });
+  $("#gJoinNome").addEventListener("input",()=>{ joinSel=""; document.querySelectorAll("#gJoinList button").forEach(x=>x.classList.remove("on")); });
+  $("#gJoinBack").addEventListener("click",()=>{ location.href=location.pathname; });
+  $("#gJoinOk").addEventListener("click",async()=>{
+    const nome=$("#gJoinNome").value.trim(), pix=$("#gJoinPix").value.trim().slice(0,80);
+    try{
+      if(joinSel){
+        meuId=joinSel;
+        if(pix) await docG().update({membros:membros.map(m=>m.id===meuId?{...m,pix}:m)});
+      } else {
+        if(nome.length<2){ $("#gJoinErr").textContent="Toque no seu nome ou escreva o seu nome."; return; }
+        if(membros.some(m=>m.nome.toLowerCase()===nome.toLowerCase())){ $("#gJoinErr").textContent="Já existe alguém com esse nome. Toque no nome na lista."; return; }
+        meuId=novoId();
+        await docG().update({membros:[...membros,{id:meuId,nome:nome.slice(0,30),pix}]});
+      }
+      LS("dsp_g",gid); LS("dsp_m",meuId); lembrar(gid,meuId,grupo.nome);
+      history.replaceState(null,"",location.pathname);
+      toast("Bem-vindo ao grupo!");
+    }catch(e){ handleWriteErr(e,"#gJoinErr"); }
+  });
+  $("#jOk").addEventListener("click",async()=>{
+    const cod=$("#jCod").value.trim().toLowerCase().replace(/[^a-z0-9]/g,"");
+    if(cod.length<4){ $("#jErr").textContent="Coloque o código do grupo."; return; }
+    $("#jErr").textContent="Procurando…";
+    try{
+      const d=await db.collection("grupos").doc(cod).get();
+      if(!d.exists){ $("#jErr").textContent="Não achei esse grupo. Confira o código."; return; }
+      gid=cod; grupo=cleanG(d); membros=grupo.membros; $("#jErr").textContent=""; mostrarJoin();
+      ouvirGrupo();
+    }catch(e){ $("#jErr").textContent="Não deu para procurar. Confira a internet."; }
+  });
+  $("#cOk").addEventListener("click",async()=>{
+    const nome=$("#cNome").value.trim(), meu=$("#cMeu").value.trim(), senha=$("#cSenha").value.trim().replace(/\D/g,""), pix=$("#cPix").value.trim().slice(0,80);
+    if(nome.length<2){ $("#cErr").textContent="Coloque o nome do grupo."; return; }
+    if(meu.length<2){ $("#cErr").textContent="Coloque o seu nome."; return; }
+    if(senha.length<4){ $("#cErr").textContent="A senha precisa ter de 4 a 8 números."; return; }
+    $("#cOk").disabled=true; $("#cErr").textContent="Criando…";
+    try{
+      let cod="";
+      for(let t=0;t<6;t++){ const c=novoId(); const d=await db.collection("grupos").doc(c).get(); if(!d.exists){ cod=c; break; } }
+      if(!cod) throw new Error("código");
+      const mid=novoId();
+      await db.collection("grupos").doc(cod).set({nome:nome.slice(0,40),senha,adminId:mid,membros:[{id:mid,nome:meu.slice(0,30),pix}],createdAt:Date.now()});
+      gid=cod; meuId=mid;
+      LS("dsp_g",gid); LS("dsp_m",meuId); LS("dsp_adm_"+gid,"1"); lembrar(gid,meuId,nome.slice(0,40));
+      $("#cErr").textContent="";
+      ouvirGrupo();
+      setTimeout(()=>toast("Grupo criado! Código "+gid+" · toque em 📤 para convidar"),600);
+    }catch(e){ $("#cErr").textContent="Não deu para criar agora. Confira a internet e tente de novo."; }
+    finally{ $("#cOk").disabled=false; }
+  });
+
+  // ---------- boot ----------
+  function boot(){
+    const q=new URLSearchParams(location.search).get("g");
+    if(q){
+      const cod=q.trim().toLowerCase().replace(/[^a-z0-9]/g,"");
+      if(cod){ const j=daLista(cod); gid=cod; meuId=j?j.m:(cod===LS("dsp_g")?(LS("dsp_m")||""):""); }
+    }
+    if(!gid){ const l=lista()[0]; if(l){ gid=l.g; meuId=l.m; } }
+    if(gid){ ouvirGrupo(); }
+    else mostrarStart();
+  }
+  try{
+    firebase.initializeApp(firebaseConfig);
+    db=firebase.firestore();
+    auth=firebase.auth();
+    auth.onAuthStateChanged(u=>{
+      if(u){ boot(); return; }
+      auth.signInAnonymously().catch(()=>{ setStatus(false,"offline"); banner("Sem conexão. Confira a internet e abra de novo."); mostrarStart(); });
+    });
+  }catch(e){ setStatus(false,"offline"); mostrarStart(); banner("Não foi possível carregar. Confira a internet."); }
+})();
+</script>
+</body>
+</html>
