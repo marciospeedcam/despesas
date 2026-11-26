@@ -76,6 +76,9 @@
   <span id="txtGear">Configurações</span>
 </button>
 
+<div id="avisoTeste" class="panel" style="display:none;background:var(--red);border-color:var(--red);color:#fff">
+  <b id="avisoTxt"></b> <a id="avisoLink" href="#" style="color:#FFE500;font-weight:700" target="_blank" rel="noopener"></a>
+</div>
 <div id="alertBox"></div>
 
 <div class="tabs">
@@ -443,6 +446,20 @@ document.getElementById("lBairro").value=meu.bairro||"";
 if(!meu.cep){ document.getElementById("lCep").value=BASE.cepBase||""; document.getElementById("lBairro").value=BASE.bairroBase||""; }
 document.getElementById("lRaio").value=meu.raio||"";
 if(meu.alvoLitro) document.getElementById("cAlvo").value=(""+meu.alvoLitro).replace(".",",");
+(function(){
+  try{
+    fetch("status.json",{cache:"no-store"}).then(function(r){ return r.ok?r.json():null; }).then(function(st){
+      if(!st || st.ativo!==false) return;
+      var c=document.getElementById("avisoTeste"), t=document.getElementById("avisoTxt"), a=document.getElementById("avisoLink");
+      t.textContent = st.mensagem || "Esta versão de teste foi encerrada.";
+      if(st.novoLink){ a.href=st.novoLink; a.textContent="abrir o app novo"; } else { a.style.display="none"; }
+      c.style.display="block";
+      var l=document.getElementById("lista"); if(l) l.style.display="none";
+      var tb=document.querySelector(".tabs"); if(tb) tb.style.display="none";
+      var g=document.getElementById("btnGear"); if(g) g.style.display="none";
+    }).catch(function(){});
+  }catch(e){}
+})();
 document.getElementById("cQueda").value=meu.quedaPct||5;
 statusGeo();
 render();
