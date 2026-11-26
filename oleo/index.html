@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1115">
+<title>Ranking Óleo de Algodão</title>
+<style>
+  :root{ --bg:#0f1115; --card:#171a21; --card2:#1e222b; --line:#2a2f3a; --txt:#eef1f6; --dim:#9aa3b2;
+         --accent:#ffb020; --good:#2ecc71; --bad:#ff5c5c; --radius:16px; }
+  @media (prefers-color-scheme: light){ :root{ --bg:#f5f6f8; --card:#fff; --card2:#f0f2f6; --line:#e2e5ea; --txt:#13161b; --dim:#67707f; } }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0 auto;background:var(--bg);color:var(--txt);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;max-width:760px;
+    padding:calc(16px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(70px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left))}
+  h1{font-size:20px;margin:0 0 2px;letter-spacing:-.3px}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:12px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+  .alert{background:linear-gradient(135deg,#1f3a24,#19261c);border:1px solid #2f6b3d}
+  @media (prefers-color-scheme: light){ .alert{background:#e7f8ec;border-color:#9ad7ad} }
+  .alert h2{margin:0 0 6px;font-size:15px;color:var(--good)}
+  .alert p{margin:0;font-size:14px}
+  .tabs{display:flex;gap:6px;margin-bottom:10px}
+  .tabs button{flex:1;background:var(--card2);color:var(--dim);border:1px solid var(--line);font-size:14px;padding:9px}
+  .tabs button.on{background:var(--accent);color:#1a1200;border-color:var(--accent)}
+  .item{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 13px;margin-bottom:9px}
+  .item.promo{border-color:var(--good);box-shadow:0 0 0 1px var(--good) inset}
+  .pos{width:30px;height:30px;flex:0 0 30px;border-radius:9px;background:var(--card2);display:grid;place-items:center;font-weight:700;font-size:14px;color:var(--dim)}
+  .pos.one{background:var(--accent);color:#1a1200}
+  .info{flex:1;min-width:0}
+  .nome{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .meta{color:var(--dim);font-size:12.5px;margin-top:2px;overflow:hidden;text-overflow:ellipsis}
+  .meta a,.lst a{color:var(--accent);text-decoration:none}
+  .right{text-align:right;flex:0 0 auto}
+  .lit{font-weight:700;font-size:16px;white-space:nowrap}
+  .tot{color:var(--dim);font-size:12.5px;white-space:nowrap}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;margin-top:4px}
+  .tag.promo{background:var(--good);color:#04240f}
+  .tag.sobe{background:var(--bad);color:#2b0606}
+  .tag.igual{background:var(--card2);color:var(--dim)}
+  .tag.meu{background:#4a6cf7;color:#fff}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  label{font-size:12.5px;color:var(--dim);display:block;margin-bottom:4px}
+  input{width:100%;padding:10px 11px;border-radius:11px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:15px}
+  button{appearance:none;border:0;border-radius:12px;padding:11px 15px;font-size:15px;font-weight:600;background:var(--accent);color:#1a1200}
+  button.ghost{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
+  button.mini{padding:4px 9px;font-size:12px;border-radius:8px;background:var(--card2);color:var(--dim);border:1px solid var(--line)}
+  .f{flex:1;min-width:110px;margin-bottom:9px}
+  details summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--dim);list-style:none;display:flex;justify-content:space-between}
+  details summary::-webkit-details-marker{display:none}
+  details summary::after{content:"+";color:var(--dim)}
+  details[open] summary{margin-bottom:12px;color:var(--txt)}
+  details[open] summary::after{content:"–"}
+  .hist{display:flex;gap:3px;align-items:flex-end;height:24px;margin-top:6px}
+  .hist i{flex:1;background:var(--card2);border-radius:2px;min-height:3px;display:block}
+  .hist i.low{background:var(--good)}
+  .empty{color:var(--dim);font-size:14px;text-align:center;padding:22px 10px}
+  .lst{font-size:14px}
+  .lst .li{padding:8px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .lst .li:last-child{border:0}
+  .lst b{font-weight:600}
+  .lst span{color:var(--dim);font-size:12.5px;text-align:right;word-break:break-word}
+  .bigcfg{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;margin:4px 0 12px;background:var(--card2);color:var(--txt);border:1px solid var(--line);font-size:15px;font-weight:700;padding:13px}
+  .bigcfg svg{width:19px;height:19px;flex:0 0 19px}
+  .bigcfg.volta{background:var(--accent);color:#1a1200;border-color:var(--accent)}
+  .icon{background:var(--card2);border:1px solid var(--line);width:42px;height:42px;flex:0 0 42px;border-radius:13px;display:grid;place-items:center;padding:0;color:var(--txt)}
+  .icon svg{width:21px;height:21px;display:block}
+  #config h2{font-size:17px;margin:0 0 12px}
+  .foot{color:var(--dim);font-size:12px;text-align:center;margin-top:16px;line-height:1.6}
+</style>
+</head>
+<body>
+<h1 id="titulo">Óleo de algodão — baldes</h1>
+<div class="sub" id="upd"></div>
+<button id="btnGear" class="bigcfg">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.63.67 1.09 1.31 1.1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+  <span id="txtGear">Configurações</span>
+</button>
+
+<div id="alertBox"></div>
+
+<div class="tabs">
+  <button id="tbPreco" class="on">Mais barato</button>
+  <button id="tbPerto">Mais perto</button>
+</div>
+
+<div id="lista"></div>
+
+<div id="config" style="display:none">
+
+<div class="panel">
+<details id="dLocal">
+  <summary>Minha localização</summary>
+  <button id="btnCheckin">Fazer check-in (usar minha localização)</button>
+  <div class="sub" id="msgGeo" style="margin:8px 0 10px"></div>
+  <div class="row">
+    <div class="f"><label>Meu CEP (se não quiser usar o GPS)</label><input id="lCep" inputmode="numeric" placeholder="04784-000"></div>
+    <div class="f"><label>Bairro / referência</label><input id="lBairro" placeholder="Veleiros"></div>
+  </div>
+  <div class="row">
+    <div class="f"><label>Buscar em um raio de (km)</label><input id="lRaio" inputmode="decimal" placeholder="10"></div>
+  </div>
+  <button class="ghost" id="btnLocal">Salvar localização e raio</button>
+  <div class="sub" id="msgLocal" style="margin:8px 0 0">As distâncias em km vêm do site do atacado, medidas a partir do CEP base. Coloque seu CEP e o raio que quer buscar.</div>
+  <div id="lstLojas" class="lst" style="margin-top:10px"></div>
+</details>
+</div>
+
+<div class="panel">
+<details>
+  <summary>Fontes de pesquisa</summary>
+  <div id="lstFontes" class="lst"></div>
+  <div class="row" style="margin-top:10px">
+    <div class="f"><label>Nome do site/loja</label><input id="fNome" placeholder="Ex: Roldão"></div>
+    <div class="f"><label>Endereço do site</label><input id="fUrl" placeholder="roldao.com.br"></div>
+  </div>
+  <button id="btnFonte">Adicionar fonte</button>
+  <div class="sub" id="msgFonte" style="margin:8px 0 0">As fontes que você adicionar entram na próxima busca.</div>
+</details>
+</div>
+
+<div class="panel">
+<details>
+  <summary>Tipo de óleo pesquisado</summary>
+  <div id="lstOleos" class="lst"></div>
+  <div class="row" style="margin-top:10px">
+    <div class="f"><label>Incluir outro óleo</label><input id="oNome" placeholder="Ex: soja, girassol, palma"></div>
+  </div>
+  <button id="btnOleo">Incluir óleo</button>
+  <div class="sub" id="msgOleo" style="margin:8px 0 0">O padrão é só óleo de algodão. O que você incluir entra na próxima busca.</div>
+</details>
+</div>
+
+<div class="panel">
+<details>
+  <summary>Marcas e produtos acompanhados</summary>
+  <div id="lstMarcas" class="lst"></div>
+  <div class="row" style="margin-top:10px">
+    <div class="f"><label>Marca ou produto que falta</label><input id="mNome" placeholder="Ex: Flor de Algodão balde 14,5kg"></div>
+  </div>
+  <button id="btnMarca">Adicionar</button>
+  <div class="sub" id="msgMarca" style="margin:8px 0 0">O que você adicionar entra na próxima busca.</div>
+</details>
+</div>
+
+<div class="panel">
+<details>
+  <summary>Lançar um preço que eu vi</summary>
+  <div class="row">
+    <div class="f"><label>Loja</label><input id="iLoja" placeholder="Ex: Roldão Jabaquara"></div>
+    <div class="f"><label>Marca</label><input id="iMarca" placeholder="Ex: Elogiata"></div>
+    <div class="f"><label>Óleo de</label><input id="iOleo" placeholder="algodão"></div>
+  </div>
+  <div class="row">
+    <div class="f"><label>Tamanho</label><input id="iTam" placeholder="balde 14,5kg"></div>
+    <div class="f"><label>Litros (balde 14,5kg = 15,8)</label><input id="iLit" inputmode="decimal" placeholder="15,8"></div>
+    <div class="f"><label>Preço R$</label><input id="iPre" inputmode="decimal" placeholder="164,90"></div>
+    <div class="f"><label>Link do produto (opcional)</label><input id="iUrl" placeholder="https://..."></div>
+  </div>
+  <button id="btnSalvar">Salvar preço</button>
+  <div class="sub" id="msg" style="margin:8px 0 0"></div>
+  <div id="lstMeus" class="lst" style="margin-top:10px"></div>
+</details>
+</div>
+
+<div class="panel">
+<details>
+  <summary>Quando avisar que está em promoção</summary>
+  <div class="row">
+    <div class="f"><label>Avisar abaixo de R$/litro</label><input id="cAlvo" inputmode="decimal" placeholder="10,00"></div>
+    <div class="f"><label>…ou % abaixo da média</label><input id="cQueda" inputmode="decimal" placeholder="5"></div>
+  </div>
+  <button class="ghost" id="btnCfg">Salvar regra do aviso</button>
+</details>
+</div>
+
+</div>
+
+<div class="foot">Check-in usa o GPS do aparelho e nada sai do seu navegador. Só baldes e galões (5 L ou mais). Preços “auto” coletados nos sites dos atacados. Seus lançamentos e ajustes ficam salvos neste navegador.<br>Confirme o preço final na loja antes de comprar.</div>
+
+<script id="dados" type="application/json">
+{
+ "atualizado":"2026-11-26T13:30:00.000Z",
+ "cepBase":"04784-000",
+ "bairroBase":"Veleiros",
+ "cotacoes":[
+  {"loja":"Atacadão","marca":"Elogiata","tamanho":"balde 14,5kg","litros":15.8,"preco":164.90,"data":"2026-11-26T13:30:00.000Z","oleo":"algodão","origem":"auto","fonte":"atacadao.com.br","url":"https://www.atacadao.com.br/oleo-de-algodao-elogiata-75627/p"},
+  {"loja":"Tenda Atacado","marca":"Select","tamanho":"balde 14,5kg","litros":15.8,"preco":169.49,"data":"2026-11-26T13:30:00.000Z","oleo":"algodão","origem":"auto","fonte":"tendaatacado.com.br","url":"https://tendaatacado.com.br/produto/oleo-de-algodao-refinado-select-14-5kg"},
+  {"loja":"Atacadão","marca":"Soya","tamanho":"balde 14,5kg","litros":15.8,"preco":184.98,"data":"2026-11-26T13:30:00.000Z","oleo":"algodão","origem":"auto","fonte":"atacadao.com.br","url":"https://www.atacadao.com.br/oleo-de-algodao-soya-76056/p"},
+  {"loja":"Atacadão","marca":"Liza","tamanho":"balde 15,8L","litros":15.8,"preco":188.88,"data":"2026-11-26T13:30:00.000Z","oleo":"algodão","origem":"auto","fonte":"atacadao.com.br","url":"https://www.atacadao.com.br/oleo-de-algodao-liza-balde-com-15-8l-60369/p"},
+  {"loja":"Tenda Atacado","marca":"Soya","tamanho":"balde 14,5kg","litros":15.8,"preco":189.90,"data":"2026-11-26T13:30:00.000Z","oleo":"algodão","origem":"auto","fonte":"tendaatacado.com.br","url":"https://tendaatacado.com.br/produto/oleo-de-algodao-soya-14-5kg"}
+ ],
+ "lojas":[
+  {"rede":"Atacadão","nome":"Interlagos","endereco":"Av. Interlagos, 4237","cep":"04661-300","lat":-23.6857817,"lon":-46.6915121,"km":1.83},
+  {"rede":"Tenda Atacado","nome":"Guarapiranga","endereco":"Av. Guarapiranga, 900","bairro":"Vila Socorro","cep":"04763-000","km":null},
+  {"rede":"Atacadão","nome":"Diadema","endereco":"Av. Pres. Kennedy, 635","cep":"09910-550","lat":-23.6853796,"lon":-46.6329295,"km":7.77},
+  {"rede":"Atacadão","nome":"Indianópolis","endereco":"Rua Professor Sousa Barros, 430","cep":"04307-100","lat":-23.6292162,"lon":-46.6455715,"km":9.31},
+  {"rede":"Atacadão","nome":"Taboão da Serra","endereco":"Rua do Tesouro, 321","cep":"06754-190","lat":-23.6085077,"lon":-46.7602757,"km":10.41},
+  {"rede":"Atacadão","nome":"Anchieta","endereco":"Av. Marginal Direita Anchieta km 11","cep":"04182-001","lat":-23.6327049,"lon":-46.5983982,"km":12.93},
+  {"rede":"Atacadão","nome":"Ipiranga","endereco":"Rua do Manifesto, 931","cep":"04209-000","lat":-23.5813201,"lon":-46.6007215,"km":16.31}
+ ],
+ "fontes":[
+  {"nome":"Atacadão","url":"atacadao.com.br"},
+  {"nome":"Tenda Atacado","url":"tendaatacado.com.br"}
+ ],
+ "oleos":["algodão"],
+ "marcas":["Soya","Liza","Elogiata","Select","Flor de Algodão","Sina Cheff","Sebella"]
+}
+</script>
+
+<script>
+var BASE={cotacoes:[],lojas:[],fontes:[],atualizado:null};
+try{ BASE=JSON.parse(document.getElementById("dados").textContent)||BASE; }catch(e){}
+var LS="oleoalgodao.v1";
+var meu={cep:"",bairro:"",geo:null,raio:null,alvoLitro:null,quedaPct:5,precos:[],fontes:[],marcas:[],oleos:[]};
+try{ var raw=localStorage.getItem(LS); if(raw){ var o=JSON.parse(raw)||{}; for(var k in o) if(o[k]!==undefined) meu[k]=o[k]; } }catch(e){}
+function save(){ try{ localStorage.setItem(LS,JSON.stringify(meu)); }catch(e){} }
+var ordem="preco";
+
+function n(v){ if(v===null||v===undefined||v==="") return null; var s=(""+v).replace(/\s/g,"").replace(/R\$/i,"").replace(/\./g,"").replace(",","."); var f=parseFloat(s); return isNaN(f)?null:f; }
+function brl(v){ return "R$ "+v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function esc(s){ return (s===null||s===undefined)?"":(""+s); }
+function cepN(c){ var d=esc(c).replace(/\D/g,""); if(d.length<5) return null; while(d.length<8) d+="0"; return parseInt(d.slice(0,8),10); }
+function slug(s){ return esc(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
+function mapsUrl(q){ return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q); }
+function todasFontes(){ return BASE.fontes.concat(meu.fontes||[]); }
+function todasMarcas(){ return (BASE.marcas||[]).concat(meu.marcas||[]); }
+function todosOleos(){ return (BASE.oleos||["algodão"]).concat(meu.oleos||[]); }
+function norm(x){ return esc(x).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
+function todasCotacoes(){ return BASE.cotacoes.concat(meu.precos||[]); }
+function unidades(){ return BASE.lojas||[]; }
+
+function hav(a,b,c,d){ var R=6371,p=Math.PI/180,x=(c-a)*p,y=(d-b)*p,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*p)*Math.cos(c*p)*Math.sin(y/2)*Math.sin(y/2); return 2*R*Math.asin(Math.sqrt(h)); }
+function kmDe(l){
+  if(meu.geo && typeof l.lat==="number" && typeof l.lon==="number") return hav(meu.geo.lat,meu.geo.lon,l.lat,l.lon);
+  if(!meu.geo && typeof l.km==="number" && mesmaBase()) return l.km;
+  return null;
+}
+function mesmaBase(){ var a=cepN(meu.cep), b=cepN(BASE.cepBase); return a===null||b===null? (cepN(meu.cep)===null) : Math.abs(a-b)<3000; }
+function unidadeDe(rede){
+  var us=unidades().filter(function(l){ return slug(l.rede)===slug(rede); });
+  if(!us.length) return null;
+  var m=cepN(meu.cep); if(m===null) return us[0];
+  var comKm=us.filter(function(l){ return kmDe(l)!==null; });
+  if(comKm.length){ comKm.sort(function(a,b){ return kmDe(a)-kmDe(b); }); return comKm[0]; }
+  var com=us.filter(function(l){ return cepN(l.cep)!==null; });
+  if(!com.length) return us[0];
+  com.sort(function(a,b){ return Math.abs(cepN(a.cep)-m)-Math.abs(cepN(b.cep)-m); });
+  return com[0];
+}
+
+function render(){
+  var upd=document.getElementById("upd"), lista=document.getElementById("lista"), alertBox=document.getElementById("alertBox");
+  pintaLojas(); pintaOleos(); pintaFontes(); pintaMarcas(); pintaMeus();
+  var ol=todosOleos().map(norm);
+  var all=todasCotacoes().filter(function(r){ return r.preco&&r.litros&&r.litros>=5&&ol.indexOf(norm(r.oleo||"algodão"))>=0; });
+  if(!all.length){ lista.innerHTML='<div class="empty">Sem baldes/galões com preço hoje. Lance um preço no campo abaixo.</div>'; alertBox.innerHTML=""; upd.textContent=""; return; }
+  var g={}; all.forEach(function(r){ var k=(esc(r.loja)+"|"+esc(r.marca)+"|"+esc(r.tamanho)).toLowerCase(); (g[k]=g[k]||[]).push(r); });
+  var itens=[];
+  Object.keys(g).forEach(function(k){
+    var h=g[k].slice().sort(function(a,b){ return (a.data||"")<(b.data||"")?-1:1; });
+    var cur=h[h.length-1], serie=h.map(function(x){ return x.preco/x.litros; });
+    var media=serie.reduce(function(a,b){return a+b;},0)/serie.length;
+    itens.push({cur:cur,pl:cur.preco/cur.litros,media:media,min:Math.min.apply(null,serie),ant:serie.length>1?serie[serie.length-2]:null,serie:serie,un:unidadeDe(cur.loja)});
+  });
+  var m=cepN(meu.cep);
+  itens.forEach(function(it){
+    it.km=it.un?kmDe(it.un):null;
+    it.dist=it.km!==null?it.km:((m!==null&&it.un&&cepN(it.un.cep)!==null)?Math.abs(cepN(it.un.cep)-m)/100000:null);
+    var porAlvo=meu.alvoLitro&&it.pl<=meu.alvoLitro, porQueda=it.serie.length>1&&it.pl<=it.media*(1-(meu.quedaPct||5)/100), porMin=it.serie.length>2&&it.pl<=it.min*1.001;
+    it.promo=!!(porAlvo||porQueda||porMin);
+    it.motivo=porAlvo?"abaixo do seu alvo":(porMin?"menor preço do histórico":(porQueda?"abaixo da média":""));
+  });
+  var raio=meu.raio?parseFloat(meu.raio):null;
+  if(raio) itens=itens.filter(function(it){ return it.km===null || it.km<=raio; });
+  if(!itens.length){ lista.innerHTML='<div class="empty">Nenhuma loja dentro de '+raio+' km. Aumente o raio.</div>'; alertBox.innerHTML=""; return; }
+  if(ordem==="perto") itens.sort(function(a,b){ var A=a.dist===null?Infinity:a.dist,B=b.dist===null?Infinity:b.dist; return A===B?a.pl-b.pl:A-B; });
+  else itens.sort(function(a,b){ return a.pl-b.pl; });
+
+  var promos=itens.filter(function(i){return i.promo;});
+  alertBox.innerHTML = promos.length
+    ? '<div class="panel alert"><h2>Está em promoção</h2><p><b>'+esc(promos[0].cur.marca)+' '+esc(promos[0].cur.tamanho)+'</b> no <b>'+esc(promos[0].cur.loja)+'</b> por '+brl(promos[0].pl)+'/litro ('+brl(promos[0].cur.preco)+') — '+promos[0].motivo+'.'+(promos.length>1?' +'+(promos.length-1)+' em promoção.':'')+'</p></div>'
+    : '';
+
+  lista.innerHTML=itens.map(function(it,i){
+    var d=it.cur.data?new Date(it.cur.data):null, dstr=d?d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}):"";
+    var tag = it.promo?'<span class="tag promo">PROMOÇÃO</span>'
+      : (it.cur.origem==="manual"?'<span class="tag meu">meu</span>'
+      : (it.ant&&it.pl>it.ant*1.001?'<span class="tag sobe">subiu</span>':(it.ant?'<span class="tag igual">estável</span>':'')));
+    var maxs=Math.max.apply(null,it.serie);
+    var bars=it.serie.slice(-12).map(function(v){ return '<i class="'+(v<=it.min*1.001?"low":"")+'" style="height:'+(maxs?Math.round(v/maxs*100):100)+'%"></i>'; }).join("");
+    var kmTxt=it.km!==null?' · '+it.km.toLocaleString("pt-BR",{maximumFractionDigits:1})+' km':'';
+    var unTxt=it.un?' · '+esc(it.un.nome||it.un.bairro||"")+kmTxt+' <a href="'+mapsUrl((it.un.endereco||"")+" "+(it.un.bairro||"")+" São Paulo")+'" target="_blank" rel="noopener">mapa</a>':'';
+    return '<div class="item'+(it.promo?" promo":"")+'">'+
+      '<div class="pos'+(i===0?" one":"")+'">'+(i+1)+'</div>'+
+      '<div class="info"><div class="nome">'+esc(it.cur.marca)+' · óleo de '+esc(it.cur.oleo||"algodão")+'</div>'+
+      '<div class="meta">'+esc(it.cur.tamanho)+' · '+esc(it.cur.loja)+unTxt+'</div>'+
+      '<div class="meta">'+dstr+(it.cur.origem==="auto"?" · auto":"")+(it.cur.url?' · <a href="'+esc(it.cur.url)+'" target="_blank" rel="noopener">'+(it.promo?"ver promoção":"ver oferta")+'</a>':'')+'</div>'+
+      (it.serie.length>1?'<div class="hist">'+bars+'</div>':'')+'</div>'+
+      '<div class="right"><div class="lit">'+brl(it.pl)+'<span style="font-size:12px;color:var(--dim)">/L</span></div>'+
+      '<div class="tot">'+brl(it.cur.preco)+'</div>'+tag+'</div></div>';
+  }).join("");
+  upd.textContent = (BASE.atualizado?"preços de "+new Date(BASE.atualizado).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}):"")+(meu.bairro?" · base: "+meu.bairro:"");
+}
+
+function pintaLojas(){
+  var el=document.getElementById("lstLojas"), us=unidades().slice();
+  if(!us.length){ el.innerHTML='<div class="li"><b>Nenhuma unidade cadastrada</b></div>'; return; }
+  var m=cepN(meu.cep);
+  us.sort(function(a,b){ var A=kmDe(a),B=kmDe(b); A=A===null?Infinity:A; B=B===null?Infinity:B; return A-B; });
+  var raio0=meu.raio?parseFloat(meu.raio):null;
+  if(raio0) us=us.filter(function(l){ var k=kmDe(l); return k===null || k<=raio0; });
+  el.innerHTML=us.slice(0,12).map(function(l){
+    return '<div class="li"><b>'+esc(l.rede)+' '+esc(l.nome||"")+(kmDe(l)!==null?' · '+kmDe(l).toLocaleString("pt-BR",{maximumFractionDigits:1})+' km':'')+'</b><span>'+esc(l.endereco||"")+(l.bairro?" · "+esc(l.bairro):"")+'<br><a href="'+mapsUrl((l.endereco||"")+" "+(l.bairro||"")+" São Paulo")+'" target="_blank" rel="noopener">ver no mapa</a></span></div>';
+  }).join("");
+}
+function pintaFontes(){
+  var el=document.getElementById("lstFontes"), fs=todasFontes();
+  el.innerHTML=fs.map(function(f,i){
+    var minha=i>=BASE.fontes.length;
+    return '<div class="li"><b>'+esc(f.nome)+'</b><span>'+esc(f.url)+(minha?' <button class="mini" data-fon="'+(i-BASE.fontes.length)+'">tirar</button>':'')+'</span></div>';
+  }).join("");
+  Array.prototype.forEach.call(el.querySelectorAll("[data-fon]"),function(b){
+    b.addEventListener("click",function(){ meu.fontes.splice(parseInt(b.getAttribute("data-fon"),10),1); save(); render(); });
+  });
+}
+function pintaOleos(){
+  var el=document.getElementById("lstOleos"), os=todosOleos(), base=(BASE.oleos||["algodão"]).length;
+  el.innerHTML=os.map(function(o,i){
+    var meuO=i>=base;
+    return '<div class="li"><b>óleo de '+esc(o)+'</b><span>'+(meuO?'<button class="mini" data-ole="'+(i-base)+'">tirar</button>':'padrão')+'</span></div>';
+  }).join("");
+  Array.prototype.forEach.call(el.querySelectorAll("[data-ole]"),function(b){
+    b.addEventListener("click",function(){ meu.oleos.splice(parseInt(b.getAttribute("data-ole"),10),1); save(); render(); });
+  });
+}
+function pintaMarcas(){
+  var el=document.getElementById("lstMarcas"), ms=todasMarcas(), base=(BASE.marcas||[]).length;
+  el.innerHTML=ms.map(function(m,i){
+    var minha=i>=base;
+    return '<div class="li"><b>'+esc(m)+'</b><span>'+(minha?'<button class="mini" data-mar="'+(i-base)+'">tirar</button>':'na busca')+'</span></div>';
+  }).join("");
+  Array.prototype.forEach.call(el.querySelectorAll("[data-mar]"),function(b){
+    b.addEventListener("click",function(){ meu.marcas.splice(parseInt(b.getAttribute("data-mar"),10),1); save(); render(); });
+  });
+}
+function pintaMeus(){
+  var el=document.getElementById("lstMeus"), ps=meu.precos||[];
+  el.innerHTML = ps.length? ps.map(function(p,i){
+    return '<div class="li"><b>'+esc(p.marca)+' '+esc(p.tamanho)+'</b><span>'+esc(p.loja)+' · '+brl(p.preco)+' <button class="mini" data-pre="'+i+'">tirar</button></span></div>';
+  }).join("") : "";
+  Array.prototype.forEach.call(el.querySelectorAll("[data-pre]"),function(b){
+    b.addEventListener("click",function(){ meu.precos.splice(parseInt(b.getAttribute("data-pre"),10),1); save(); render(); });
+  });
+}
+
+function verConfig(abrir){
+  document.getElementById("config").style.display = abrir?"block":"none";
+  ["lista","alertBox","upd"].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display=abrir?"none":""; });
+  var t=document.querySelector(".tabs"); if(t) t.style.display=abrir?"none":"flex";
+  document.getElementById("titulo").textContent = abrir?"Configurações":"Óleo de algodão — baldes";
+  var b=document.getElementById("btnGear");
+  b.className = abrir?"bigcfg volta":"bigcfg";
+  b.innerHTML = abrir
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg><span>Voltar ao ranking</span>'
+    : GEAR;
+  window.scrollTo(0,0);
+}
+var GEAR=document.getElementById("btnGear").innerHTML;
+document.getElementById("btnGear").addEventListener("click",function(){
+  verConfig(document.getElementById("config").style.display==="none");
+});
+document.getElementById("tbPreco").addEventListener("click",function(){ ordem="preco"; this.classList.add("on"); document.getElementById("tbPerto").classList.remove("on"); render(); });
+document.getElementById("tbPerto").addEventListener("click",function(){ ordem="perto"; this.classList.add("on"); document.getElementById("tbPreco").classList.remove("on");
+  if(cepN(meu.cep)===null){ document.getElementById("dLocal").open=true; document.getElementById("msgLocal").textContent="Coloque seu CEP para ordenar pelo mais perto."; }
+  render(); });
+
+function statusGeo(){
+  var el=document.getElementById("msgGeo");
+  if(meu.geo) el.textContent="Check-in feito"+(meu.geo.quando?" em "+new Date(meu.geo.quando).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"")+" — distâncias a partir de onde você está.";
+  else el.textContent="Toque em check-in para o app medir a distância de onde você está agora.";
+}
+document.getElementById("btnCheckin").addEventListener("click",function(){
+  var el=document.getElementById("msgGeo");
+  if(!navigator.geolocation){ el.textContent="Este navegador não libera a localização aqui. Use o CEP abaixo."; return; }
+  el.textContent="Pegando sua localização…";
+  navigator.geolocation.getCurrentPosition(function(p){
+    meu.geo={lat:p.coords.latitude,lon:p.coords.longitude,quando:new Date().toISOString()};
+    save(); statusGeo(); render();
+  },function(err){
+    el.textContent = err&&err.code===1 ? "Acesso à localização negado — use o CEP abaixo." : "Não consegui pegar a localização agora. Use o CEP abaixo.";
+  },{enableHighAccuracy:true,timeout:12000,maximumAge:120000});
+});
+document.getElementById("btnLocal").addEventListener("click",function(){
+  meu.cep=document.getElementById("lCep").value.trim(); meu.bairro=document.getElementById("lBairro").value.trim();
+  meu.raio=n(document.getElementById("lRaio").value); save();
+  document.getElementById("msgLocal").textContent = mesmaBase()
+    ? ("Salvo. Mostrando lojas até "+(meu.raio||"todas")+(meu.raio?" km":"")+" do seu CEP.")
+    : "Salvo. As distâncias em km são medidas do CEP "+esc(BASE.cepBase)+"; para o seu CEP elas entram na próxima busca diária.";
+  render();
+});
+document.getElementById("btnFonte").addEventListener("click",function(){
+  var nome=document.getElementById("fNome").value.trim(), url=document.getElementById("fUrl").value.trim();
+  if(!nome||!url){ document.getElementById("msgFonte").textContent="Preencha nome e site."; return; }
+  meu.fontes.push({nome:nome,url:url}); save();
+  document.getElementById("fNome").value=""; document.getElementById("fUrl").value="";
+  document.getElementById("msgFonte").textContent="Fonte adicionada — entra na próxima busca.";
+  render();
+});
+document.getElementById("btnOleo").addEventListener("click",function(){
+  var v=document.getElementById("oNome").value.trim().replace(/^óleo de /i,"");
+  if(!v){ document.getElementById("msgOleo").textContent="Escreva o tipo de óleo."; return; }
+  meu.oleos.push(v); save(); document.getElementById("oNome").value="";
+  document.getElementById("msgOleo").textContent="Incluído — entra na próxima busca.";
+  render();
+});
+document.getElementById("btnMarca").addEventListener("click",function(){
+  var v=document.getElementById("mNome").value.trim();
+  if(!v){ document.getElementById("msgMarca").textContent="Escreva a marca ou o produto."; return; }
+  meu.marcas.push(v); save(); document.getElementById("mNome").value="";
+  document.getElementById("msgMarca").textContent="Adicionado — entra na próxima busca.";
+  render();
+});
+document.getElementById("btnSalvar").addEventListener("click",function(){
+  var loja=document.getElementById("iLoja").value.trim(), marca=document.getElementById("iMarca").value.trim(),
+      tam=document.getElementById("iTam").value.trim(), lit=n(document.getElementById("iLit").value), pre=n(document.getElementById("iPre").value),
+      m=document.getElementById("msg");
+  if(!loja||!marca||!lit||!pre){ m.textContent="Preencha loja, marca, litros e preço."; return; }
+  var tipo=(document.getElementById("iOleo").value.trim()||"algodão").replace(/^óleo de /i,"");
+  if(todosOleos().map(norm).indexOf(norm(tipo))<0){ meu.oleos.push(tipo); }
+  var u=document.getElementById("iUrl").value.trim();
+  meu.precos.push({url:(u.indexOf("https://")===0?u:""),oleo:tipo,loja:loja,marca:marca,tamanho:tam||(lit+"L"),litros:lit,preco:pre,data:new Date().toISOString(),origem:"manual"});
+  save(); m.textContent="Salvo neste navegador.";
+  ["iLoja","iMarca","iOleo","iTam","iLit","iPre","iUrl"].forEach(function(x){document.getElementById(x).value="";});
+  render();
+});
+document.getElementById("btnCfg").addEventListener("click",function(){
+  meu.alvoLitro=n(document.getElementById("cAlvo").value); meu.quedaPct=n(document.getElementById("cQueda").value)||5;
+  save(); render();
+});
+
+document.getElementById("lCep").value=meu.cep||"";
+document.getElementById("lBairro").value=meu.bairro||"";
+if(!meu.cep){ document.getElementById("lCep").value=BASE.cepBase||""; document.getElementById("lBairro").value=BASE.bairroBase||""; }
+document.getElementById("lRaio").value=meu.raio||"";
+if(meu.alvoLitro) document.getElementById("cAlvo").value=(""+meu.alvoLitro).replace(".",",");
+document.getElementById("cQueda").value=meu.quedaPct||5;
+statusGeo();
+render();
+</script>
+</body>
+</html>
