@@ -1,0 +1,14 @@
+{
+  "name": "Olho no Óleo",
+  "short_name": "Olho no Óleo",
+  "description": "Ranking de preços de óleo de algodão em balde, com aviso de promoção",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F5EADA",
+  "theme_color": "#FFE500",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

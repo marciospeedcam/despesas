@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF04D"/><stop offset="1" stop-color="#E8C400"/></linearGradient>
+<linearGradient id="balde" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FF5A5A"/><stop offset="0.45" stop-color="#E4121B"/><stop offset="1" stop-color="#8E0A10"/></linearGradient>
+<linearGradient id="cif" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.6" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFD9D9"/></linearGradient>
+</defs>
+<rect x="0" y="0" width="120" height="120" rx="27" fill="url(#bg)"/>
+<path d="M0 28C0 13 13 0 28 0h64c15 0 28 13 28 28 0 18-30 30-60 30S0 46 0 28z" fill="#FFFFFF" opacity="0.22"/>
+<ellipse cx="60" cy="104" rx="40" ry="7" fill="#A88A00" opacity="0.45"/>
+<path d="M42 34c0-12 8-19 18-19s18 7 18 19" fill="none" stroke="#8E0A10" stroke-width="6" stroke-linecap="round"/>
+<path d="M40 32c0-12 8-19 18-19s18 7 18 19" fill="none" stroke="#FF8A8A" stroke-width="4" stroke-linecap="round"/>
+<path d="M36 92V42h48v50c0 4-11 7-24 7s-24-3-24-7z" fill="url(#balde)"/>
+<ellipse cx="60" cy="42" rx="24" ry="8" fill="#FFD23F" stroke="#B00D14" stroke-width="2"/>
+<ellipse cx="54" cy="40" rx="9" ry="3" fill="#FFF59B" opacity="0.85"/>
+<rect x="41" y="52" width="6" height="36" rx="3" fill="#FFFFFF" opacity="0.35"/>
+<text x="62" y="100" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="700" fill="#6B0409" opacity="0.45">$</text>
+<text x="60" y="98" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="700" fill="url(#cif)" stroke="#8E0A10" stroke-width="3.5" paint-order="stroke">$</text>
+</svg>

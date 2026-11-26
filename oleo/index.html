@@ -5,7 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#FFE500">
-<title>Ranking Óleo de Algodão</title>
+<title>Olho no Óleo</title>
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="favicon-32.png" sizes="32x32">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-title" content="Olho no Óleo">
+<meta name="mobile-web-app-capable" content="yes">
 <style>
   :root{ --bg:#F5EADA; --card:#FFFFFF; --card2:#FDF6EA; --line:#E8DAC2; --txt:#1B1B1B; --dim:#7D6C58;
          --accent:#FFE500; --accent-txt:#1A1200; --red:#E4121B; --good:#148A3D; --bad:#E4121B; --radius:16px; }
@@ -69,7 +74,7 @@
 </style>
 </head>
 <body>
-<h1 id="titulo">Óleo de algodão — baldes</h1>
+<h1 id="titulo">Olho no Óleo</h1>
 <div class="sub" id="upd"></div>
 <button id="btnGear" class="bigcfg">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.63.67 1.09 1.31 1.1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -302,7 +307,7 @@ function render(){
       '<div class="right"><div class="lit">'+brl(it.pl)+'<span style="font-size:12px;color:var(--dim)">/L</span></div>'+
       '<div class="tot">'+brl(it.cur.preco)+'</div>'+tag+'</div></div>';
   }).join("");
-  upd.textContent = (BASE.atualizado?"preços de "+new Date(BASE.atualizado).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}):"")+(meu.bairro?" · base: "+meu.bairro:"");
+  upd.textContent = "baldes de óleo de algodão · "+(BASE.atualizado?"preços de "+new Date(BASE.atualizado).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}):"")+(meu.bairro?" · base: "+meu.bairro:"");
 }
 
 function pintaLojas(){
@@ -360,7 +365,7 @@ function verConfig(abrir){
   document.getElementById("config").style.display = abrir?"block":"none";
   ["lista","alertBox","upd"].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display=abrir?"none":""; });
   var t=document.querySelector(".tabs"); if(t) t.style.display=abrir?"none":"flex";
-  document.getElementById("titulo").textContent = abrir?"Configurações":"Óleo de algodão — baldes";
+  document.getElementById("titulo").textContent = abrir?"Configurações":"Olho no Óleo";
   var b=document.getElementById("btnGear");
   b.className = abrir?"bigcfg volta":"bigcfg";
   b.innerHTML = abrir
